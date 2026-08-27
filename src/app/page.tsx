@@ -9,6 +9,7 @@ import type { ScoreEntry } from "@/scores/repository";
 import { Board } from "@/ui/Board";
 import { GameCanvas } from "@/ui/GameCanvas";
 import { InitialsEntry } from "@/ui/InitialsEntry";
+import { SoundControls } from "@/ui/SoundControls";
 
 type Phase =
 	| { name: "loading" }
@@ -147,7 +148,13 @@ function SongSelect({
 				))}
 			</ul>
 
-			<p className="section-label mt-10">
+			{/* Levels are set here rather than only mid-run: the booth wants them
+			    dialled in for a loud room before anyone is queueing. */}
+			<div className="mt-8">
+				<SoundControls preview />
+			</div>
+
+			<p className="section-label mt-8">
 				Arrows or A/D to move &middot; Shift or Space to dash &middot; Mouse to aim
 			</p>
 			<p className="mt-2 text-[color:var(--text-dim)] text-xs">ESC opens the menu mid-run.</p>

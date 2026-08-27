@@ -12,8 +12,13 @@ bun dev
 
 Open the app and pick a track. Arrows or `A`/`D` to move, `Shift` or `Space` to
 dash, or just aim with the mouse. On a phone, drag anywhere on the playfield.
-`Esc` opens the pause menu — continue, retry, quit. `[` and `]` nudge the audio
-offset by 5ms if the booth machine needs it.
+`Esc` opens the pause menu — continue, retry, quit, and the volume sliders.
+`[` and `]` nudge the audio offset by 5ms if the booth machine needs it.
+
+Music and effects levels sit on the main menu too, so they can be set for a loud
+room before anyone is queueing. They live in `localStorage` only (`ctb.audio`) —
+a per-machine preference, never sent to the server, so the booth laptop and a
+phone player each keep their own.
 
 ## How it works
 

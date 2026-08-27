@@ -194,3 +194,58 @@
   content: "█";
   animation: blink 1s steps(1) infinite;
 }
+
+/* ─── Volume sliders ────────────────────────────────────────────── */
+
+/* A thin rail with a bone keycap for a thumb, matching the buttons. */
+.volume-slider {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 22px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-runnable-track {
+  height: 3px;
+  background-color: var(--line);
+  border-radius: 2px;
+}
+
+.volume-slider::-moz-range-track {
+  height: 3px;
+  background-color: var(--line);
+  border-radius: 2px;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 18px;
+  margin-top: -8px;
+  background-color: var(--bone);
+  border: 1px solid var(--key-shadow);
+  border-radius: 3px;
+  box-shadow: 0 2px 0 var(--key-shadow);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 14px;
+  height: 18px;
+  background-color: var(--bone);
+  border: 1px solid var(--key-shadow);
+  border-radius: 3px;
+  box-shadow: 0 2px 0 var(--key-shadow);
+}
+
+.volume-slider:active::-webkit-slider-thumb {
+  box-shadow: 0 0 0 var(--key-shadow);
+  transform: translateY(2px);
+}
+
+.volume-slider:active::-moz-range-thumb {
+  box-shadow: 0 0 0 var(--key-shadow);
+  transform: translateY(2px);
+}

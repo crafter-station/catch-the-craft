@@ -1,6 +1,12 @@
 import type { CatchBeatmap, CatchObject } from "@/osu/toCatch";
 import { PLAYFIELD_WIDTH } from "@/osu/types";
 import { SampleBank } from "./audio/samples";
+import {
+	audioSettings,
+	effectsVolume,
+	musicVolume,
+	subscribeAudioSettings,
+} from "./audio/settings";
 import { Catcher, type MoveDirection } from "./catcher";
 import { AudioClock } from "./clock";
 import { ParticleField } from "./particles";
@@ -90,6 +96,7 @@ export class GameEngine {
 	private readonly held = new Set<string>();
 	private inputMode: InputMode = "keyboard";
 	private disposed = false;
+	private unsubscribeAudio: (() => void) | null = null;
 	private ended = false;
 	private paused = false;
 	private pausedAtMs = 0;
@@ -108,6 +115,12 @@ export class GameEngine {
 		return this.paused;
 	}
 
+	private applyAudioSettings(): void {
+		const settings = audioSettings();
+		this.clock?.setVolume(musicVolume(settings));
+		this.samples?.setVolume(effectsVolume(settings));
+	}
+
 	async start(): Promise<void> {
 		// One context for the music and the hitsounds. Two would drift apart.
 		this.context = new AudioContext();
@@ -122,6 +135,11 @@ export class GameEngine {
 		this.clock = clock;
 		this.clock.offsetMs = DEFAULT_OFFSET_MS;
 		this.samples = samples;
+
+		// Stored levels apply immediately, and keep applying while the run is going
+		// so the pause menu's sliders are audible the moment they move.
+		this.applyAudioSettings();
+		this.unsubscribeAudio = subscribeAudioSettings(() => this.applyAudioSettings());
 
 		this.attachInput();
 		this.clock.start(this.options.startMs, LEAD_IN_MS);
@@ -378,6 +396,7 @@ export class GameEngine {
 
 	dispose(): void {
 		this.disposed = true;
+		this.unsubscribeAudio?.();
 		cancelAnimationFrame(this.frame);
 		this.clock?.dispose();
 		this.samples?.dispose();
