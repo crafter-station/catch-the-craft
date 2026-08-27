@@ -10,6 +10,8 @@ services:
       PORT: "3000"
       NODE_ENV: production
       DATABASE_URL: "postgres://ctb:${POSTGRES_PASSWORD}@db:5432/ctb"
+    expose:
+      - "3000"
     depends_on:
       db:
         condition: service_healthy
