@@ -7,7 +7,9 @@
  * coloured disc reads instantly and keeps every fruit the same circular hitbox.
  *
  * Colours are cosmetic only. Every token is worth the same, so which logo
- * happens to spawn can never affect a leaderboard placing.
+ * happens to spawn can never affect a leaderboard placing. They are picked for
+ * separation against the warm-black playfield first and brand fit second: a disc
+ * the player cannot see is a fruit they cannot catch.
  */
 export interface Sponsor {
 	slug: string;
@@ -19,7 +21,7 @@ export interface Sponsor {
 export const SPONSORS: readonly Sponsor[] = [
 	{ slug: "convex", name: "Convex", color: "#F5C518" },
 	{ slug: "clerk", name: "Clerk", color: "#6C47FF" },
-	{ slug: "cursor", name: "Cursor", color: "#5B5B66" },
+	{ slug: "cursor", name: "Cursor", color: "#9B9BA8" },
 	{ slug: "elevenlabs", name: "ElevenLabs", color: "#B4B4C0" },
 	{ slug: "exa", name: "Exa", color: "#1F6FEB" },
 	{ slug: "tavily", name: "Tavily", color: "#00B8D9" },
@@ -29,7 +31,8 @@ export const SPONSORS: readonly Sponsor[] = [
 
 /** Rendered at 2x the on-field size so the tokens stay crisp on retina. */
 const TOKEN_SIZE = 96;
-const LOGO_FRACTION = 0.56;
+/** Keeps the fitted logo clear of the rim. */
+const LOGO_INSET = 0.9;
 
 export class TokenAtlas {
 	private readonly tokens: HTMLCanvasElement[] = [];
@@ -72,8 +75,10 @@ async function renderToken(sponsor: Sponsor): Promise<HTMLCanvasElement> {
 	ctx.arc(centre, centre, radius, 0, Math.PI * 2);
 	ctx.fill();
 
-	ctx.strokeStyle = "rgba(0,0,0,0.35)";
-	ctx.lineWidth = 3;
+	// A light rim, not a dark one. The playfield is near-black, so a dark outline
+	// merges the darker discs into the background instead of separating them.
+	ctx.strokeStyle = "rgba(233, 231, 222, 0.4)";
+	ctx.lineWidth = 2.5;
 	ctx.stroke();
 
 	const ink = contrastInk(sponsor.color);
@@ -81,7 +86,7 @@ async function renderToken(sponsor: Sponsor): Promise<HTMLCanvasElement> {
 	try {
 		const logo = await loadSvg(`/sponsors/${sponsor.slug}.svg`);
 		ctx.drawImage(
-			knockOut(logo, ink, TOKEN_SIZE * LOGO_FRACTION),
+			knockOut(logo, ink, radius),
 			0,
 			0,
 			TOKEN_SIZE,
@@ -108,7 +113,7 @@ async function renderToken(sponsor: Sponsor): Promise<HTMLCanvasElement> {
 function knockOut(
 	logo: HTMLImageElement,
 	ink: string,
-	boxSize: number,
+	radius: number,
 ): HTMLCanvasElement {
 	const canvas = document.createElement("canvas");
 	canvas.width = TOKEN_SIZE;
@@ -116,9 +121,14 @@ function knockOut(
 	const ctx = canvas.getContext("2d");
 	if (!ctx) return canvas;
 
-	const scale = Math.min(boxSize / logo.width, boxSize / logo.height);
-	const width = logo.width * scale;
-	const height = logo.height * scale;
+	// For aspect ratio a, the largest rectangle inscribed in a circle of radius r
+	// is 2ra/sqrt(1+a^2) by 2r/sqrt(1+a^2). Most sponsor marks are wordmarks near
+	// 4:1, and squeezing those into a square box leaves the lettering too small to
+	// recognise at 40px on the playfield, which defeats the point of sponsor fruit.
+	const aspect = logo.width / logo.height;
+	const diagonal = Math.sqrt(1 + aspect * aspect);
+	const width = ((2 * radius * aspect) / diagonal) * LOGO_INSET;
+	const height = ((2 * radius) / diagonal) * LOGO_INSET;
 
 	ctx.drawImage(
 		logo,

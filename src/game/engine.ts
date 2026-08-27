@@ -1,6 +1,7 @@
 import type { CatchBeatmap, CatchObject } from "@/osu/toCatch";
 import { PLAYFIELD_WIDTH } from "@/osu/types";
 import { Catcher, type MoveDirection } from "./catcher";
+import { SampleBank } from "./audio/samples";
 import { AudioClock } from "./clock";
 import { CanvasRenderer } from "./render/canvas";
 import { type ScoreSnapshot, ScoreTracker } from "./scoring";
@@ -52,6 +53,8 @@ export class GameEngine {
 	private readonly score = new ScoreTracker();
 
 	private clock: AudioClock | null = null;
+	private context: AudioContext | null = null;
+	private samples: SampleBank | null = null;
 	private frame = 0;
 	private lastFrameMs = 0;
 
@@ -75,9 +78,19 @@ export class GameEngine {
 	}
 
 	async start(): Promise<void> {
-		this.clock = await AudioClock.load(this.options.audioUrl);
+		// One context for the music and the hitsounds. Two would drift apart.
+		this.context = new AudioContext();
+		if (this.context.state === "suspended") await this.context.resume();
+
+		const [clock, samples] = await Promise.all([
+			AudioClock.load(this.options.audioUrl, this.context),
+			SampleBank.load(this.context),
+			this.renderer.ready(),
+		]);
+
+		this.clock = clock;
 		this.clock.offsetMs = DEFAULT_OFFSET_MS;
-		await this.renderer.ready();
+		this.samples = samples;
 
 		this.attachInput();
 		// Rewind by the lead-in so objects fall into an empty plate before the music.
@@ -145,9 +158,20 @@ export class GameEngine {
 			const object = objects[this.nextIndex++];
 			if (object.time < this.options.startMs) continue; // before the played window
 
+			const before = this.score.snapshot();
 			const caught = this.catcher.catches(object.x);
 			if (caught) this.score.hit(object.kind);
 			else this.score.miss(object.kind);
+			const after = this.score.snapshot();
+
+			if (caught) {
+				this.samples?.play(object.kind);
+				// Announce the multiplier stepping up, not every catch inside a tier.
+				if (after.multiplier > before.multiplier) this.samples?.play("comboUp");
+			} else if (object.kind !== "banana" && before.combo > 0) {
+				// Only an actual break is worth a sound; missing from zero combo is not news.
+				this.samples?.play("comboBreak");
+			}
 
 			if (object.kind !== "droplet" || !caught) {
 				this.effects.push({
@@ -234,6 +258,8 @@ export class GameEngine {
 		this.disposed = true;
 		cancelAnimationFrame(this.frame);
 		this.clock?.dispose();
+		this.samples?.dispose();
+		void this.context?.close();
 		window.removeEventListener("keydown", this.onKeyDown);
 		window.removeEventListener("keyup", this.onKeyUp);
 		this.options.canvas.removeEventListener("pointermove", this.onPointerMove);

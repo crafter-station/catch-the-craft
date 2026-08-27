@@ -7,7 +7,7 @@ interface Props {
 }
 
 /**
- * Three-letter arcade initials.
+ * Three-letter arcade initials, entered into three keycaps.
  *
  * Chosen over a free-text name because there is a queue of people behind the
  * player: three keystrokes and you are done, no length limits to enforce and no
@@ -31,20 +31,27 @@ export function InitialsEntry({ onSubmit }: Props) {
 				if (complete) onSubmit(initials);
 			}}
 		>
-			<label htmlFor="initials" className="block opacity-70">
-				ENTER INITIALS
+			<label htmlFor="initials" className="section-label block">
+				Enter initials
 			</label>
 
-			<div className="mt-3 flex items-center gap-3">
+			{/* Clicking anywhere on the slots refocuses the real input behind them. */}
+			<button
+				type="button"
+				className="mt-3 flex items-center gap-3"
+				onClick={() => inputRef.current?.focus()}
+			>
 				{[0, 1, 2].map((slot) => (
 					<span
 						key={slot}
-						className="glow flex h-16 w-14 items-center justify-center border border-[color:var(--color-phosphor-dim)] font-[family-name:var(--font-silkscreen)] text-3xl"
+						className={`flex h-20 w-16 items-center justify-center font-[family-name:var(--font-pixel)] font-bold text-3xl ${
+							slot === initials.length ? "keycap cursor" : "keycap-ghost"
+						}`}
 					>
-						{initials[slot] ?? (slot === initials.length ? "_" : "")}
+						{initials[slot] ?? ""}
 					</span>
 				))}
-			</div>
+			</button>
 
 			<input
 				ref={inputRef}
@@ -63,11 +70,7 @@ export function InitialsEntry({ onSubmit }: Props) {
 				aria-label="Three letter initials"
 			/>
 
-			<button
-				type="submit"
-				disabled={!complete}
-				className="mt-6 border border-[color:var(--color-phosphor)] px-4 py-2 disabled:opacity-30 enabled:hover:bg-[color:var(--color-phosphor)] enabled:hover:text-[color:var(--color-void)]"
-			>
+			<button type="submit" disabled={!complete} className="keycap mt-6 px-5 py-2.5 font-semibold">
 				SAVE SCORE
 			</button>
 		</form>

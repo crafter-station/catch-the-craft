@@ -5,38 +5,55 @@ import type { ScoreEntry } from "@/scores/repository";
 interface Props {
 	scores: ScoreEntry[];
 	highlight?: string;
+	/** Larger type for the standalone second-screen board. */
+	size?: "compact" | "display";
 }
 
-export function Board({ scores, highlight }: Props) {
+export function Board({ scores, highlight, size = "compact" }: Props) {
 	if (scores.length === 0) {
-		return <p className="mt-6 opacity-60">NO SCORES YET. BE FIRST.</p>;
+		return <p className="mt-6 text-[color:var(--text-dim)]">NO SCORES YET. BE FIRST.</p>;
 	}
 
+	const display = size === "display";
+
 	return (
-		<ol className="mt-6 space-y-1 font-[family-name:var(--font-plex-mono)]">
+		<ol className="mt-6">
 			{scores.map((entry, index) => {
-				const isPlayer =
-					highlight !== undefined && entry.initials === highlight;
+				const isPlayer = highlight !== undefined && entry.initials === highlight;
 				return (
 					<li
 						key={`${entry.initials}-${entry.createdAt}`}
-						className={`flex items-baseline gap-4 border-b border-dotted border-[color:var(--color-phosphor-dim)] py-2 ${
-							isPlayer ? "text-[color:var(--color-amber)]" : ""
+						className={`flex items-baseline gap-4 border-[color:var(--border)] border-b py-3 ${
+							isPlayer ? "bg-[color:var(--screen-dim)]" : ""
 						}`}
 					>
-						<span className="w-8 opacity-50">
+						<span
+							className={`w-10 text-[color:var(--text-dim)] tabular-nums ${display ? "text-lg" : "text-sm"}`}
+						>
 							{String(index + 1).padStart(2, "0")}
 						</span>
-						<span className="glow w-16 font-[family-name:var(--font-silkscreen)] text-lg">
+						<span
+							className={`w-24 font-[family-name:var(--font-pixel)] font-bold ${
+								display ? "text-3xl" : "text-lg"
+							} ${isPlayer ? "text-[color:var(--bright)]" : "text-[color:var(--text)]"}`}
+						>
 							{entry.initials}
 						</span>
-						<span className="flex-1 tabular-nums">
+						<span className={`flex-1 tabular-nums ${display ? "text-2xl" : "text-base"}`}>
 							{String(entry.score).padStart(8, "0")}
 						</span>
-						<span className="w-20 text-right opacity-70 tabular-nums">
+						<span
+							className={`w-24 text-right text-[color:var(--text-dim)] tabular-nums ${
+								display ? "text-xl" : "text-sm"
+							}`}
+						>
 							{(entry.accuracy * 100).toFixed(1)}%
 						</span>
-						<span className="w-16 text-right opacity-50 tabular-nums">
+						<span
+							className={`w-20 text-right text-[color:var(--text-dim)] tabular-nums ${
+								display ? "text-xl" : "text-sm"
+							}`}
+						>
 							{entry.maxCombo}x
 						</span>
 					</li>

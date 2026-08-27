@@ -4,12 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { RunResult } from "@/game/engine";
 import { type BeatmapEntry, loadManifest, type Tier } from "@/game/library";
-import {
-	fetchBoard,
-	flushPending,
-	isRanked,
-	submitScore,
-} from "@/scores/client";
+import { fetchBoard, flushPending, isRanked, submitScore } from "@/scores/client";
 import type { ScoreEntry } from "@/scores/repository";
 import { Board } from "@/ui/Board";
 import { GameCanvas } from "@/ui/GameCanvas";
@@ -27,15 +22,15 @@ export default function Home() {
 	const [phase, setPhase] = useState<Phase>({ name: "loading" });
 
 	useEffect(() => {
+		// Deliver anything the last session could not send before doing anything else.
 		void flushPending();
+
 		loadManifest()
 			.then((entries) => {
 				setLibrary(entries);
 				setPhase({ name: "select" });
 			})
-			.catch((error: Error) =>
-				setPhase({ name: "error", message: error.message }),
-			);
+			.catch((error: Error) => setPhase({ name: "error", message: error.message }));
 	}, []);
 
 	if (phase.name === "playing") {
@@ -43,71 +38,65 @@ export default function Home() {
 			<GameCanvas
 				entry={phase.entry}
 				tier={phase.tier}
-				onEnd={(result) =>
-					setPhase({ name: "results", entry: phase.entry, result })
-				}
+				onEnd={(result) => setPhase({ name: "results", entry: phase.entry, result })}
 				onError={(message) => setPhase({ name: "error", message })}
 			/>
 		);
 	}
 
 	return (
-		<main className="crt mx-auto flex min-h-dvh max-w-4xl flex-col justify-center px-6 py-12">
-			<Header />
+		<div className="relative min-h-dvh overflow-hidden">
+			<div className="grid-bg" aria-hidden="true" />
+			<div className="scanlines pointer-events-none fixed inset-0 z-40" aria-hidden="true" />
 
-			{phase.name === "loading" && <Line>LOADING BEATMAPS...</Line>}
+			<main className="relative z-10 mx-auto flex min-h-dvh max-w-3xl flex-col justify-center px-6 py-16">
+				<Header />
 
-			{phase.name === "error" && (
-				<div className="mt-8">
-					<p className="text-[color:var(--color-alert)]">
-						?{phase.message.toUpperCase()}
-					</p>
-					<p className="mt-2 opacity-60">READY.</p>
-				</div>
-			)}
+				{phase.name === "loading" && (
+					<p className="mt-10 cursor text-[color:var(--text-dim)]">LOADING BEATMAPS... </p>
+				)}
 
-			{phase.name === "select" && (
-				<SongSelect
-					library={library}
-					onPlay={(entry, tier) => setPhase({ name: "playing", entry, tier })}
-				/>
-			)}
+				{phase.name === "error" && (
+					<div className="panel mt-10 p-6">
+						<p className="text-[color:var(--destructive)]">?{phase.message.toUpperCase()}</p>
+						<p className="mt-2 cursor text-[color:var(--text-dim)]">READY. </p>
+					</div>
+				)}
 
-			{phase.name === "results" && (
-				<Results
-					result={phase.result}
-					entry={phase.entry}
-					onAgain={() =>
-						setPhase({
-							name: "playing",
-							entry: phase.entry,
-							tier: phase.result.tier as Tier,
-						})
-					}
-					onMenu={() => setPhase({ name: "select" })}
-				/>
-			)}
-		</main>
+				{phase.name === "select" && (
+					<SongSelect
+						library={library}
+						onPlay={(entry, tier) => setPhase({ name: "playing", entry, tier })}
+					/>
+				)}
+
+				{phase.name === "results" && (
+					<Results
+						result={phase.result}
+						entry={phase.entry}
+						onAgain={() =>
+							setPhase({ name: "playing", entry: phase.entry, tier: phase.result.tier as Tier })
+						}
+						onMenu={() => setPhase({ name: "select" })}
+					/>
+				)}
+			</main>
+		</div>
 	);
 }
 
 function Header() {
 	return (
-		<header className="border-[color:var(--color-phosphor-dim)] border-b pb-4">
-			<pre className="glow font-[family-name:var(--font-silkscreen)] text-2xl leading-tight sm:text-4xl">
-				CATCH THE CRAFT
-			</pre>
-			<p className="mt-2 text-sm opacity-70">
+		<header className="border-[color:var(--border)] border-b pb-6">
+			<p className="section-label">The Next Craft &middot; Arcade</p>
+			<h1 className="pixel-heading mt-3 text-3xl sm:text-5xl">Catch the Craft</h1>
+			<p className="mt-4 text-[color:var(--text-dim)] text-sm leading-relaxed">
 				**** THE NEXT CRAFT BASIC V2 ****
 				<br />
 				64K RAM SYSTEM &nbsp;38911 SPONSOR BYTES FREE
 			</p>
 		</header>
 	);
-}
-
-function Line({ children }: { children: React.ReactNode }) {
-	return <p className="mt-8 cursor opacity-80">{children} </p>;
 }
 
 function SongSelect({
@@ -118,37 +107,36 @@ function SongSelect({
 	onPlay: (entry: BeatmapEntry, tier: Tier) => void;
 }) {
 	return (
-		<section className="mt-8">
-			<p className="opacity-60">10 LOAD "BEATMAP",8,1</p>
+		<section className="mt-10">
+			<p className="text-[color:var(--text-dim)] text-sm">10 LOAD &quot;BEATMAP&quot;,8,1</p>
 
-			<ul className="mt-6 space-y-5">
+			<ul className="mt-6 space-y-3">
 				{library.map((entry, index) => (
-					<li key={entry.slug}>
-						<div className="flex flex-wrap items-baseline gap-x-3">
-							<span className="opacity-50">
+					<li key={entry.slug} className="panel p-5">
+						<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+							<span className="text-[color:var(--text-dim)] text-sm tabular-nums">
 								{String((index + 1) * 10).padStart(3, "0")}
 							</span>
-							<span className="glow font-[family-name:var(--font-silkscreen)] text-lg">
-								{entry.title.toUpperCase()}
-							</span>
-							<span className="text-sm opacity-60">{entry.artist}</span>
+							<h2 className="pixel-heading text-base sm:text-lg">{entry.title}</h2>
 							{entry.tournament && (
-								<span className="border border-[color:var(--color-amber)] px-2 py-0.5 text-[10px] text-[color:var(--color-amber)]">
+								<span className="rounded bg-[color:var(--bone)] px-2 py-0.5 font-semibold text-[10px] text-[color:var(--void)] tracking-[0.12em]">
 									RANKED
 								</span>
 							)}
 						</div>
 
-						<div className="mt-2 flex flex-wrap gap-2 pl-10">
+						<p className="mt-1 text-[color:var(--text-dim)] text-sm">{entry.artist}</p>
+
+						<div className="mt-4 flex flex-wrap gap-2">
 							{entry.difficulties.map((difficulty) => (
 								<button
 									key={difficulty.tier}
 									type="button"
 									onClick={() => onPlay(entry, difficulty.tier)}
-									className="border border-[color:var(--color-phosphor-dim)] px-3 py-1 text-sm transition-colors hover:bg-[color:var(--color-phosphor)] hover:text-[color:var(--color-void)]"
+									className="keycap-ghost px-4 py-2 text-sm"
 								>
 									{difficulty.tier}
-									<span className="ml-2 opacity-50">
+									<span className="ml-2 text-[color:var(--text-dim)]">
 										CS{difficulty.circleSize}
 									</span>
 								</button>
@@ -158,8 +146,8 @@ function SongSelect({
 				))}
 			</ul>
 
-			<p className="mt-10 text-sm opacity-50">
-				ARROWS OR A/D TO MOVE &middot; SHIFT TO DASH &middot; MOUSE TO AIM
+			<p className="section-label mt-10">
+				Arrows or A/D to move &middot; Shift to dash &middot; Mouse to aim
 			</p>
 		</section>
 	);
@@ -177,10 +165,7 @@ function Results({
 	onMenu: () => void;
 }) {
 	const ranked = isRanked(entry.tournament, result.tier);
-	const [saved, setSaved] = useState<{
-		initials: string;
-		queued: boolean;
-	} | null>(null);
+	const [saved, setSaved] = useState<{ initials: string; queued: boolean } | null>(null);
 	const [board, setBoard] = useState<ScoreEntry[] | null>(null);
 
 	const rows: Array<[string, string]> = [
@@ -202,22 +187,22 @@ function Results({
 	}
 
 	return (
-		<section className="mt-8">
-			<p className="glow font-[family-name:var(--font-silkscreen)] text-xl">
-				RUN COMPLETE
-			</p>
-			<p className="mt-1 text-sm opacity-60">
-				{entry.artist} - {entry.title} [{result.tier}]
+		<section className="mt-10">
+			<h2 className="pixel-heading text-2xl">Run complete</h2>
+			<p className="mt-2 text-[color:var(--text-dim)] text-sm">
+				{entry.artist} — {entry.title} [{result.tier}]
 			</p>
 
-			<dl className="mt-6 max-w-sm">
-				{rows.map(([label, value]) => (
+			<dl className="panel mt-6 max-w-sm p-5">
+				{rows.map(([label, value], index) => (
 					<div
 						key={label}
-						className="flex justify-between border-[color:var(--color-phosphor-dim)] border-b border-dotted py-2"
+						className={`flex justify-between py-2 ${
+							index > 0 ? "border-[color:var(--border)] border-t" : ""
+						}`}
 					>
-						<dt className="opacity-60">{label}</dt>
-						<dd className="glow">{value}</dd>
+						<dt className="text-[color:var(--text-dim)] text-sm">{label}</dt>
+						<dd className="font-[family-name:var(--font-pixel)] tabular-nums">{value}</dd>
 					</div>
 				))}
 			</dl>
@@ -228,42 +213,29 @@ function Results({
 				<div className="mt-8">
 					<p
 						className={
-							saved.queued ? "text-[color:var(--color-amber)]" : "opacity-70"
+							saved.queued ? "text-[color:var(--destructive)]" : "text-[color:var(--bright)]"
 						}
 					>
-						{saved.queued
-							? "SCORE SAVED LOCALLY - SYNC PENDING"
-							: "SCORE SAVED"}
+						{saved.queued ? "SCORE SAVED LOCALLY — SYNC PENDING" : "SCORE SAVED"}
 					</p>
 					{board && <Board scores={board} highlight={saved.initials} />}
 				</div>
 			)}
 
 			{!ranked && (
-				<p className="mt-6 text-sm opacity-50">
-					FREE PLAY - ONLY {entry.title.toUpperCase()} ON EASY IS RANKED
+				<p className="mt-6 text-[color:var(--text-dim)] text-sm">
+					FREE PLAY — only {entry.title} on EASY is ranked.
 				</p>
 			)}
 
-			<div className="mt-8 flex flex-wrap gap-3">
-				<button
-					type="button"
-					onClick={onAgain}
-					className="border border-[color:var(--color-phosphor)] px-4 py-2 hover:bg-[color:var(--color-phosphor)] hover:text-[color:var(--color-void)]"
-				>
+			<div className="mt-10 flex flex-wrap gap-3">
+				<button type="button" onClick={onAgain} className="keycap px-5 py-2.5 font-semibold">
 					RUN
 				</button>
-				<button
-					type="button"
-					onClick={onMenu}
-					className="border border-[color:var(--color-phosphor-dim)] px-4 py-2 opacity-70 hover:opacity-100"
-				>
+				<button type="button" onClick={onMenu} className="keycap-ghost px-5 py-2.5">
 					LIST
 				</button>
-				<Link
-					href="/leaderboard"
-					className="border border-[color:var(--color-phosphor-dim)] px-4 py-2 opacity-70 hover:opacity-100"
-				>
+				<Link href="/leaderboard" className="keycap-ghost px-5 py-2.5">
 					BOARD
 				</Link>
 			</div>

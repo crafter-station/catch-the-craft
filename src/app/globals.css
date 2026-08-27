@@ -1,54 +1,183 @@
 @import "tailwindcss";
 
 /*
- * Palette lifted from the-next-craft: a C64 cold-boot screen. Phosphor green on
- * near-black, with amber reserved for anything the player is meant to act on.
+ * Palette and utilities lifted from crafter-station/the-next-craft so the game
+ * reads as part of the same event, not a lookalike. Warm black-and-white —
+ * "negro cálido tipo Apple '99" in their words — with no accent hue at all.
+ * The sponsor tokens on the playfield are the only colour in the product, which
+ * is what makes them register as the subject rather than as decoration.
  */
-@theme {
-  --color-void: #070b07;
-  --color-panel: #0d150d;
-  --color-phosphor: #33ff66;
-  --color-phosphor-dim: #1f9940;
-  --color-amber: #ffd23f;
-  --color-alert: #ff4d4d;
+:root {
+  color-scheme: dark;
 
-  --font-display: "Silkscreen", ui-monospace, monospace;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+
+  --void: #1a1a17;
+  --screen: #1a1a17;
+  --screen-dim: #161613;
+  --line: #8c8a82;
+  --bright: #e9e7de;
+  --text: #f2f0e9;
+  --text-dim: #a2a096;
+  --bone: #e6e3d8;
+  --key-shadow: #8c8a82;
+  --destructive: #f87171;
+  --border: rgb(140 138 130 / 45%);
 }
 
-html,
-body {
-  background: var(--color-void);
-  color: var(--color-phosphor);
+@theme inline {
+  --color-void: var(--void);
+  --color-screen: var(--screen);
+  --color-screen-dim: var(--screen-dim);
+  --color-line: var(--line);
+  --color-bright: var(--bright);
+  --color-text: var(--text);
+  --color-text-dim: var(--text-dim);
+  --color-bone: var(--bone);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+
+  --font-pixel: var(--font-silkscreen);
+  --font-mono: var(--font-plex-mono);
+  --font-script: var(--font-borel);
+  --font-sans: var(--font-plex-mono);
+}
+
+@layer base {
+  html {
+    font-family: var(--font-mono);
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background-color: var(--void);
+    color: var(--text);
+    overflow-x: hidden;
+    overscroll-behavior: none;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background-color: var(--bright);
+    color: var(--void);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--bright);
+    outline-offset: 2px;
+  }
+}
+
+/* ─── Type ──────────────────────────────────────────────────────── */
+
+.section-label {
   font-family: var(--font-mono);
-  overscroll-behavior: none;
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bright);
 }
 
-body {
-  margin: 0;
-  min-height: 100dvh;
+.pixel-heading {
+  font-family: var(--font-pixel);
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  color: var(--text);
+  text-wrap: balance;
 }
 
-/* CRT scanlines. Kept off the playfield canvas itself — falling objects have to
-   stay readable, and interference over moving sprites is genuinely harder to track. */
-.crt::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 50;
-  background: repeating-linear-gradient(
+/* ─── Surfaces ──────────────────────────────────────────────────── */
+
+.panel {
+  background-color: var(--screen-dim);
+  border: 1px solid var(--line);
+  border-radius: 0.625rem;
+}
+
+/* Decorative only. Deliberately not applied over the playfield canvas —
+   interference across moving objects makes them measurably harder to track. */
+.scanlines {
+  background-image: repeating-linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0) 0px,
-    rgba(0, 0, 0, 0) 2px,
-    rgba(0, 0, 0, 0.22) 3px,
-    rgba(0, 0, 0, 0.22) 4px
+    rgb(0 0 0 / 14%) 0,
+    rgb(0 0 0 / 14%) 1px,
+    transparent 1px,
+    transparent 4px
   );
 }
 
-.glow {
-  text-shadow: 0 0 8px rgba(51, 255, 102, 0.55);
+.grid-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(to right, rgb(140 138 130 / 9%) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(140 138 130 / 9%) 1px, transparent 1px);
+  background-size: 46px 46px;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 35%, transparent 82%);
+  mask-image: radial-gradient(ellipse at center, #000 35%, transparent 82%);
 }
+
+/* ─── Keycaps ───────────────────────────────────────────────────── */
+
+.keycap {
+  background-color: var(--bone);
+  color: var(--void);
+  border: 1px solid var(--key-shadow);
+  border-radius: 0.5rem;
+  box-shadow: 0 3px 0 var(--key-shadow);
+  transform: translateY(0);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .keycap:hover {
+    background-color: #f4f2ea;
+  }
+}
+
+.keycap:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--key-shadow);
+}
+
+.keycap:disabled {
+  opacity: 0.35;
+  transform: translateY(0);
+  box-shadow: 0 3px 0 var(--key-shadow);
+}
+
+.keycap-ghost {
+  background-color: transparent;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  box-shadow: 0 3px 0 var(--line);
+  transform: translateY(0);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .keycap-ghost:hover {
+    background-color: var(--screen-dim);
+  }
+}
+
+.keycap-ghost:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--line);
+}
+
+/* ─── Cursor ────────────────────────────────────────────────────── */
 
 @keyframes blink {
   0%,

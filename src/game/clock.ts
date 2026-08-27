@@ -22,9 +22,13 @@ export class AudioClock {
 	/** Player-tunable latency compensation, nudged with `[` and `]` in game. */
 	offsetMs = 0;
 
-	private constructor(context: AudioContext, buffer: AudioBuffer) {
+	/** True when this clock created the context and is therefore allowed to close it. */
+	private readonly ownsContext: boolean;
+
+	private constructor(context: AudioContext, buffer: AudioBuffer, ownsContext: boolean) {
 		this.context = context;
 		this.buffer = buffer;
+		this.ownsContext = ownsContext;
 		this.gain = context.createGain();
 		this.gain.connect(context.destination);
 	}
@@ -38,7 +42,7 @@ export class AudioClock {
 		if (!response.ok) throw new Error(`Failed to load audio: ${url}`);
 		const buffer = await ctx.decodeAudioData(await response.arrayBuffer());
 
-		return new AudioClock(ctx, buffer);
+		return new AudioClock(ctx, buffer, context === undefined);
 	}
 
 	get durationMs(): number {
@@ -100,6 +104,8 @@ export class AudioClock {
 	dispose(): void {
 		this.stop();
 		this.gain.disconnect();
-		void this.context.close();
+		// A shared context belongs to the caller — closing it would kill the
+		// hitsound bank hanging off the same context.
+		if (this.ownsContext) void this.context.close();
 	}
 }

@@ -13,9 +13,23 @@ const FRUIT_DIAMETER = 38;
 const DROPLET_RADIUS = 7;
 const BANANA_RADIUS = 13;
 
-const PHOSPHOR = "#33FF66";
-const PHOSPHOR_DIM = "rgba(51, 255, 102, 0.28)";
-const BACKGROUND = "#070B07";
+/*
+ * the-next-craft's palette. There is no accent hue in it on purpose: the sponsor
+ * tokens are the only colour on screen, which is what makes them read as the
+ * subject of the game rather than as decoration on it.
+ */
+const VOID = "#1a1a17";
+const LINE = "#8c8a82";
+const BRIGHT = "#e9e7de";
+const TEXT = "#f2f0e9";
+const TEXT_DIM = "#a2a096";
+const BONE = "#e6e3d8";
+const KEY_SHADOW = "#8c8a82";
+const DESTRUCTIVE = "#f87171";
+
+const GRID_SIZE = 46;
+const PIXEL_FONT = '"Silkscreen", ui-monospace, monospace';
+const MONO_FONT = '"IBM Plex Mono", ui-monospace, monospace';
 
 export interface Frame {
 	objects: CatchObject[];
@@ -51,7 +65,7 @@ export class CanvasRenderer {
 		this.atlas = await TokenAtlas.load();
 	}
 
-	/** Where the 512-unit playfield lands in CSS pixels. Also used to map pointer input. */
+	/** Where the 512-unit playfield lands in CSS pixels. Also maps pointer input. */
 	playfieldRect(cssWidth: number, cssHeight: number): Rect {
 		// Capped against height and centred. Letting the 512-unit field stretch the
 		// full width of a wide monitor does not change difficulty — catcher speed is
@@ -68,7 +82,7 @@ export class CanvasRenderer {
 		const lineY = field.height * CATCHER_LINE;
 		const ctx = this.ctx;
 
-		ctx.fillStyle = BACKGROUND;
+		ctx.fillStyle = VOID;
 		ctx.fillRect(0, 0, width, height);
 
 		this.drawField(field, lineY);
@@ -77,8 +91,7 @@ export class CanvasRenderer {
 			const remaining = object.time - frame.chartTimeMs;
 			if (remaining < 0) continue;
 			const y = lineY - (remaining / frame.fallDuration) * lineY;
-			const x = field.x + object.x * scale;
-			this.drawObject(object, x, y, scale);
+			this.drawObject(object, field.x + object.x * scale, y, scale);
 		}
 
 		this.drawEffects(frame, field, scale, lineY);
@@ -94,10 +107,7 @@ export class CanvasRenderer {
 
 		const targetWidth = Math.round(width * ratio);
 		const targetHeight = Math.round(height * ratio);
-		if (
-			this.canvas.width !== targetWidth ||
-			this.canvas.height !== targetHeight
-		) {
+		if (this.canvas.width !== targetWidth || this.canvas.height !== targetHeight) {
 			this.canvas.width = targetWidth;
 			this.canvas.height = targetHeight;
 		}
@@ -106,70 +116,64 @@ export class CanvasRenderer {
 		return { width, height };
 	}
 
+	/** The same 46px blueprint grid the landing page uses as its background. */
 	private drawField(field: Rect, lineY: number): void {
 		const ctx = this.ctx;
 
-		ctx.strokeStyle = "rgba(51, 255, 102, 0.10)";
+		ctx.strokeStyle = "rgba(140, 138, 130, 0.09)";
 		ctx.lineWidth = 1;
-		for (let i = 1; i < 8; i++) {
-			const x = field.x + (field.width / 8) * i;
-			ctx.beginPath();
-			ctx.moveTo(x, 0);
-			ctx.lineTo(x, lineY);
-			ctx.stroke();
-		}
-
-		ctx.strokeStyle = PHOSPHOR_DIM;
-		ctx.lineWidth = 2;
 		ctx.beginPath();
-		ctx.moveTo(field.x, lineY);
-		ctx.lineTo(field.x + field.width, lineY);
+		for (let x = field.x; x <= field.x + field.width; x += GRID_SIZE) {
+			ctx.moveTo(Math.round(x) + 0.5, 0);
+			ctx.lineTo(Math.round(x) + 0.5, lineY);
+		}
+		for (let y = lineY; y >= 0; y -= GRID_SIZE) {
+			ctx.moveTo(field.x, Math.round(y) + 0.5);
+			ctx.lineTo(field.x + field.width, Math.round(y) + 0.5);
+		}
+		ctx.stroke();
+
+		ctx.strokeStyle = "rgba(140, 138, 130, 0.55)";
+		ctx.lineWidth = 1;
+		ctx.beginPath();
+		ctx.moveTo(field.x, Math.round(lineY) + 0.5);
+		ctx.lineTo(field.x + field.width, Math.round(lineY) + 0.5);
 		ctx.stroke();
 	}
 
-	private drawObject(
-		object: CatchObject,
-		x: number,
-		y: number,
-		scale: number,
-	): void {
+	private drawObject(object: CatchObject, x: number, y: number, scale: number): void {
 		const ctx = this.ctx;
 
 		if (object.kind === "fruit") {
 			const size = FRUIT_DIAMETER * scale;
 			const token = this.atlas?.forCombo(object.comboIndex);
-			if (token) {
-				ctx.drawImage(token, x - size / 2, y - size / 2, size, size);
-			}
+			if (token) ctx.drawImage(token, x - size / 2, y - size / 2, size, size);
 			return;
 		}
 
 		if (object.kind === "droplet") {
-			ctx.fillStyle = PHOSPHOR;
+			ctx.fillStyle = TEXT_DIM;
 			ctx.beginPath();
 			ctx.arc(x, y, DROPLET_RADIUS * scale, 0, Math.PI * 2);
 			ctx.fill();
 			return;
 		}
 
-		// Banana: a diamond, so a bonus object never reads as a fruit you must catch.
+		// Banana: a hollow diamond. Distinct from a filled droplet at a glance, so a
+		// bonus object never reads as something you are being punished for missing.
 		const r = BANANA_RADIUS * scale;
-		ctx.fillStyle = "#FFD23F";
+		ctx.strokeStyle = BRIGHT;
+		ctx.lineWidth = Math.max(1.5, 2 * scale);
 		ctx.beginPath();
 		ctx.moveTo(x, y - r);
 		ctx.lineTo(x + r, y);
 		ctx.lineTo(x, y + r);
 		ctx.lineTo(x - r, y);
 		ctx.closePath();
-		ctx.fill();
+		ctx.stroke();
 	}
 
-	private drawEffects(
-		frame: Frame,
-		field: Rect,
-		scale: number,
-		lineY: number,
-	): void {
+	private drawEffects(frame: Frame, field: Rect, scale: number, lineY: number): void {
 		const ctx = this.ctx;
 
 		for (const effect of frame.effects) {
@@ -180,7 +184,7 @@ export class CanvasRenderer {
 			ctx.globalAlpha = 1 - age;
 
 			if (effect.missed) {
-				ctx.strokeStyle = "#FF4D4D";
+				ctx.strokeStyle = DESTRUCTIVE;
 				ctx.lineWidth = 2;
 				const r = 10 + age * 26;
 				ctx.beginPath();
@@ -190,8 +194,10 @@ export class CanvasRenderer {
 				ctx.lineTo(x - r, lineY + r);
 				ctx.stroke();
 			} else {
+				// The catch ring borrows the sponsor's colour — the one place the
+				// monochrome field is allowed to flash.
 				const sponsor = this.atlas?.sponsorForCombo(effect.comboIndex);
-				ctx.strokeStyle = sponsor?.color ?? PHOSPHOR;
+				ctx.strokeStyle = sponsor?.color ?? BRIGHT;
 				ctx.lineWidth = 3 * (1 - age);
 				ctx.beginPath();
 				ctx.arc(x, lineY, 12 + age * 44, 0, Math.PI * 2);
@@ -202,69 +208,72 @@ export class CanvasRenderer {
 		ctx.globalAlpha = 1;
 	}
 
-	private drawCatcher(
-		catcher: Catcher,
-		field: Rect,
-		scale: number,
-		lineY: number,
-	): void {
+	/**
+	 * The plate is a C64 keycap: bone, hard-edged, with the same 3px extruded
+	 * shadow the landing page puts under its buttons. Dashing lifts it off that
+	 * shadow — their `:active` state, run in reverse.
+	 */
+	private drawCatcher(catcher: Catcher, field: Rect, scale: number, lineY: number): void {
 		const ctx = this.ctx;
 		const width = catcher.width * scale;
-		const x = field.x + catcher.x * scale;
-		const height = 14;
+		const height = 16;
+		const left = field.x + catcher.x * scale - width / 2;
+		const top = lineY - height;
+		const radius = 4;
+		const lift = catcher.dashing ? 3 : 0;
 
-		ctx.save();
-		ctx.shadowColor = PHOSPHOR;
-		ctx.shadowBlur = catcher.dashing ? 26 : 12;
-		ctx.fillStyle = catcher.dashing ? "#B6FFD0" : PHOSPHOR;
-
-		// A shallow bowl: wider at the top so the catch range reads honestly.
+		ctx.fillStyle = KEY_SHADOW;
 		ctx.beginPath();
-		ctx.moveTo(x - width / 2, lineY - height);
-		ctx.lineTo(x + width / 2, lineY - height);
-		ctx.lineTo(x + width / 2.4, lineY + height / 2);
-		ctx.lineTo(x - width / 2.4, lineY + height / 2);
-		ctx.closePath();
+		ctx.roundRect(left, top - lift + 3, width, height, radius);
 		ctx.fill();
-		ctx.restore();
+
+		ctx.fillStyle = catcher.dashing ? "#f4f2ea" : BONE;
+		ctx.strokeStyle = KEY_SHADOW;
+		ctx.lineWidth = 1;
+		ctx.beginPath();
+		ctx.roundRect(left, top - lift, width, height, radius);
+		ctx.fill();
+		ctx.stroke();
 	}
 
 	private drawHud(frame: Frame, width: number, height: number): void {
 		const ctx = this.ctx;
 		const { snapshot } = frame;
 
-		ctx.fillStyle = "rgba(51, 255, 102, 0.18)";
-		ctx.fillRect(0, 0, width, 4);
-		ctx.fillStyle = PHOSPHOR;
-		ctx.fillRect(0, 0, width * frame.progress, 4);
+		ctx.fillStyle = "rgba(140, 138, 130, 0.25)";
+		ctx.fillRect(0, 0, width, 3);
+		ctx.fillStyle = BRIGHT;
+		ctx.fillRect(0, 0, width * frame.progress, 3);
 
-		ctx.font = '600 28px "Silkscreen", ui-monospace, monospace';
-		ctx.fillStyle = PHOSPHOR;
 		ctx.textBaseline = "top";
 
+		ctx.font = `700 26px ${PIXEL_FONT}`;
+		ctx.fillStyle = TEXT;
 		ctx.textAlign = "right";
-		ctx.fillText(String(snapshot.score).padStart(8, "0"), width - 20, 22);
+		ctx.fillText(String(snapshot.score).padStart(8, "0"), width - 24, 24);
 
-		ctx.font = '400 15px "IBM Plex Mono", ui-monospace, monospace';
-		ctx.fillText(`${(snapshot.accuracy * 100).toFixed(2)}%`, width - 20, 58);
+		ctx.font = `500 13px ${MONO_FONT}`;
+		ctx.fillStyle = TEXT_DIM;
+		ctx.fillText(`${(snapshot.accuracy * 100).toFixed(2)}%`, width - 24, 58);
 
 		ctx.textAlign = "left";
-		ctx.font = '600 30px "Silkscreen", ui-monospace, monospace';
-		ctx.fillText(`${snapshot.combo}x`, 20, 22);
+		ctx.font = `700 28px ${PIXEL_FONT}`;
+		ctx.fillStyle = TEXT;
+		ctx.fillText(`${snapshot.combo}x`, 24, 24);
 
 		if (snapshot.multiplier > 1) {
-			ctx.font = '400 15px "IBM Plex Mono", ui-monospace, monospace';
-			ctx.fillStyle = "#FFD23F";
-			ctx.fillText(`COMBO BONUS ${snapshot.multiplier}x`, 20, 58);
+			ctx.font = `600 12px ${MONO_FONT}`;
+			ctx.fillStyle = BRIGHT;
+			ctx.letterSpacing = "0.12em";
+			ctx.fillText(`COMBO ${snapshot.multiplier}X`, 24, 58);
+			ctx.letterSpacing = "0px";
 		}
 
 		ctx.textAlign = "center";
-		ctx.font = '400 12px "IBM Plex Mono", ui-monospace, monospace';
-		ctx.fillStyle = "rgba(51, 255, 102, 0.45)";
-		ctx.fillText(
-			"< > MOVE   SHIFT DASH   MOUSE TO AIM",
-			width / 2,
-			height - 24,
-		);
+		ctx.font = `500 11px ${MONO_FONT}`;
+		ctx.fillStyle = LINE;
+		ctx.letterSpacing = "0.12em";
+		ctx.fillText("LEFT / RIGHT MOVE    SHIFT DASH    MOUSE TO AIM", width / 2, height - 26);
+		ctx.letterSpacing = "0px";
 	}
 }

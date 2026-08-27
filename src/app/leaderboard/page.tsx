@@ -11,9 +11,9 @@ import { Board } from "@/ui/Board";
 const POLL_MS = 5000;
 
 /**
- * The board, on its own route, sized for a TV next to the booth. It polls
- * rather than holding a socket open: five seconds is well inside the time it
- * takes someone to walk over and look, and a dropped poll costs nothing.
+ * The board on its own route, sized for a TV next to the booth. It polls rather
+ * than holding a socket open: five seconds is well inside the time it takes
+ * someone to walk over and look, and a dropped poll costs nothing.
  */
 export default function Leaderboard() {
 	const [entry, setEntry] = useState<BeatmapEntry | null>(null);
@@ -46,29 +46,32 @@ export default function Leaderboard() {
 	}, [refresh]);
 
 	return (
-		<main className="crt mx-auto flex min-h-dvh max-w-5xl flex-col justify-center px-8 py-12">
-			<header className="border-[color:var(--color-phosphor-dim)] border-b pb-4">
-				<h1 className="glow font-[family-name:var(--font-silkscreen)] text-3xl sm:text-5xl">
-					HIGH SCORES
-				</h1>
-				<p className="mt-2 text-sm opacity-70">
-					{entry
-						? `${entry.artist.toUpperCase()} - ${entry.title.toUpperCase()} [${RANKED_TIER}]`
-						: "LOADING..."}
-				</p>
-			</header>
+		<div className="relative min-h-dvh overflow-hidden">
+			<div className="grid-bg" aria-hidden="true" />
+			<div className="scanlines pointer-events-none fixed inset-0 z-40" aria-hidden="true" />
 
-			{offline && (
-				<p className="mt-6 text-[color:var(--color-amber)]">
-					?BOARD OFFLINE - RETRYING
-				</p>
-			)}
+			<main className="relative z-10 mx-auto flex min-h-dvh max-w-5xl flex-col justify-center px-8 py-16">
+				<header className="border-[color:var(--border)] border-b pb-6">
+					<p className="section-label">The Next Craft &middot; Arcade</p>
+					<h1 className="pixel-heading mt-3 text-4xl sm:text-6xl">High scores</h1>
+					<p className="mt-4 text-[color:var(--text-dim)] text-sm">
+						{entry ? `${entry.artist} — ${entry.title} [${RANKED_TIER}]` : "LOADING..."}
+					</p>
+				</header>
 
-			<Board scores={scores} />
+				{offline && (
+					<p className="mt-6 text-[color:var(--destructive)]">?BOARD OFFLINE — RETRYING</p>
+				)}
 
-			<Link href="/" className="mt-10 text-sm opacity-50 hover:opacity-100">
-				&lt; BACK TO GAME
-			</Link>
-		</main>
+				<Board scores={scores} size="display" />
+
+				<Link
+					href="/"
+					className="section-label mt-12 text-[color:var(--text-dim)] hover:text-[color:var(--bright)]"
+				>
+					&lt; Back to game
+				</Link>
+			</main>
+		</div>
 	);
 }

@@ -29,8 +29,35 @@ re-render can never drop a frame. Time comes from `AudioContext.currentTime` and
 nothing else.
 
 Fruit are sponsor logos composited at boot into brand-coloured discs
-(`src/game/render/tokens.ts`). Which logo spawns is cosmetic — every token scores
-the same, so the leaderboard never depends on it.
+(`src/game/render/tokens.ts`). Each logo is knocked out to a silhouette and
+fitted to the largest rectangle that inscribes in its disc — most sponsor marks
+are wordmarks near 4:1, and a square fit leaves the lettering unreadable at 40px.
+Which logo spawns is cosmetic: every token scores the same, so the leaderboard
+never depends on it.
+
+Hitsounds are osu!'s own samples, played through the same `AudioContext` as the
+music. A second context would run on its own hardware callback and drift.
+
+## Look and feel
+
+Palette, fonts and components come from
+[the-next-craft](https://github.com/crafter-station/the-next-craft): warm
+black-and-white (`#1a1a17` void, `#f2f0e9` text, `#8c8a82` lines), Silkscreen for
+pixel headings, IBM Plex Mono for everything else, and the `.keycap` / `.panel` /
+`.grid-bg` utilities. There is deliberately no accent hue — the sponsor tokens
+are the only colour in the product, which is what makes them read as the subject
+rather than as decoration. The catcher is drawn as a C64 keycap, and dashing
+lifts it off its own shadow.
+
+Scanlines are applied to the shell and never over the playfield canvas:
+interference across moving objects makes them measurably harder to track.
+
+## Credits
+
+Gameplay samples in `public/sfx/` are from
+[ppy/osu-resources](https://github.com/ppy/osu-resources), licensed
+**CC BY-NC 4.0**. Fine for a hackathon booth; if this ever becomes commercial,
+they have to be replaced.
 
 ## Scripts
 
