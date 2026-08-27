@@ -1,26 +1,67 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Palette lifted from the-next-craft: a C64 cold-boot screen. Phosphor green on
+ * near-black, with amber reserved for anything the player is meant to act on.
+ */
+@theme {
+  --color-void: #070b07;
+  --color-panel: #0d150d;
+  --color-phosphor: #33ff66;
+  --color-phosphor-dim: #1f9940;
+  --color-amber: #ffd23f;
+  --color-alert: #ff4d4d;
+
+  --font-display: "Silkscreen", ui-monospace, monospace;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  background: var(--color-void);
+  color: var(--color-phosphor);
+  font-family: var(--font-mono);
+  overscroll-behavior: none;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  min-height: 100dvh;
+}
+
+/* CRT scanlines. Kept off the playfield canvas itself — falling objects have to
+   stay readable, and interference over moving sprites is genuinely harder to track. */
+.crt::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.22) 3px,
+    rgba(0, 0, 0, 0.22) 4px
+  );
+}
+
+.glow {
+  text-shadow: 0 0 8px rgba(51, 255, 102, 0.55);
+}
+
+@keyframes blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.cursor::after {
+  content: "█";
+  animation: blink 1s steps(1) infinite;
 }

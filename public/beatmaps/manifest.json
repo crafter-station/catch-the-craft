@@ -1,0 +1,158 @@
+[
+  {
+    "slug": "attitude",
+    "setId": 2573813,
+    "title": "ATTITUDE (TV SIZE)",
+    "artist": "aespa",
+    "audio": "/beatmaps/attitude/audio.mp3",
+    "startMs": 0,
+    "durationMs": 90000,
+    "tournament": true,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Cup",
+        "circleSize": 2.5,
+        "approachRate": 6,
+        "objectCount": 188,
+        "maxScore": 544050
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Salad",
+        "circleSize": 3,
+        "approachRate": 7,
+        "objectCount": 230,
+        "maxScore": 624850
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Platter",
+        "circleSize": 3.5,
+        "approachRate": 8,
+        "objectCount": 221,
+        "maxScore": 810850
+      }
+    ]
+  },
+  {
+    "slug": "kimi-no-shiranai-monogatari",
+    "setId": 2558930,
+    "title": "Kimi no Shiranai Monogatari (TV Size)",
+    "artist": "supercell",
+    "audio": "/beatmaps/kimi-no-shiranai-monogatari/audio.mp3",
+    "startMs": 0,
+    "durationMs": 90000,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Cup",
+        "circleSize": 2,
+        "approachRate": 5,
+        "objectCount": 154,
+        "maxScore": 528600
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Sadu's Salad",
+        "circleSize": 2.5,
+        "approachRate": 6.3,
+        "objectCount": 184,
+        "maxScore": 598400
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Zonda's Platter",
+        "circleSize": 3.2,
+        "approachRate": 7.5,
+        "objectCount": 168,
+        "maxScore": 623400
+      }
+    ]
+  },
+  {
+    "slug": "what-ive-done",
+    "setId": 2469870,
+    "title": "What I've Done",
+    "artist": "Linkin Park",
+    "audio": "/beatmaps/what-ive-done/audio.mp3",
+    "startMs": 30000,
+    "durationMs": 90000,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Cup",
+        "circleSize": 2.5,
+        "approachRate": 6,
+        "objectCount": 266,
+        "maxScore": 446900
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Salad",
+        "circleSize": 3,
+        "approachRate": 7,
+        "objectCount": 362,
+        "maxScore": 587800
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Platter",
+        "circleSize": 3.5,
+        "approachRate": 8,
+        "objectCount": 449,
+        "maxScore": 744600
+      }
+    ]
+  },
+  {
+    "slug": "sugary-daydream",
+    "setId": 1478481,
+    "title": "Sugary Daydream",
+    "artist": "Zekk",
+    "audio": "/beatmaps/sugary-daydream/audio.mp3",
+    "startMs": 25000,
+    "durationMs": 90000,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Cup",
+        "circleSize": 2.5,
+        "approachRate": 6.3,
+        "objectCount": 384,
+        "maxScore": 778800
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Salad",
+        "circleSize": 3,
+        "approachRate": 7.3,
+        "objectCount": 462,
+        "maxScore": 964800
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Platter",
+        "circleSize": 3.3,
+        "approachRate": 8.3,
+        "objectCount": 701,
+        "maxScore": 1554200
+      }
+    ]
+  }
+]

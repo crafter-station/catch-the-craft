@@ -1,0 +1,43 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      # Without HOSTNAME the server binds 127.0.0.1 inside the container and
+      # Traefik returns 404 for the domain.
+      HOSTNAME: "0.0.0.0"
+      PORT: "3000"
+      NODE_ENV: production
+      DATABASE_URL: "postgres://ctb:${POSTGRES_PASSWORD}@db:5432/ctb"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - default
+      - dokploy-network
+    restart: unless-stopped
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ctb
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: ctb
+    # Named volume, so `vps compose redeploy` keeps the leaderboard.
+    # Never run `vps compose remove --delete-volumes` against this stack.
+    volumes:
+      - ctb-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ctb -d ctb"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+volumes:
+  ctb-pgdata:
+
+networks:
+  dokploy-network:
+    external: true

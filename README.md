@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CATCH THE CRAFT
 
-## Getting Started
+osu!catch in the browser, for [The Next Craft](https://thenextcraft.org) — real osu!
+beatmaps, sponsor logos as the fruit, and an arcade leaderboard.
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+```
+bun install
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open the app and pick a track. Arrows or `A`/`D` to move, `Shift` to dash, or just
+aim with the mouse. On a phone, drag anywhere on the playfield.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How it works
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The chart is the real thing. `.osu` files are parsed in the browser
+(`src/osu/parse.ts`), slider paths are flattened to arc-length polylines
+(`src/osu/curve.ts`), and the result is converted to osu!catch's own object model
+(`src/osu/toCatch.ts`) — circles become fruit, sliders become juice streams with
+droplets on the tick grid, spinners become banana showers. Catcher width comes
+from the chart's circle size and fall time from its approach rate, using osu!'s
+formulas.
 
-## Learn More
+The run itself is a plain class with a `requestAnimationFrame` loop
+(`src/game/engine.ts`) drawing to one canvas. No game state lives in React, so a
+re-render can never drop a frame. Time comes from `AudioContext.currentTime` and
+nothing else.
 
-To learn more about Next.js, take a look at the following resources:
+Fruit are sponsor logos composited at boot into brand-coloured discs
+(`src/game/render/tokens.ts`). Which logo spawns is cosmetic — every token scores
+the same, so the leaderboard never depends on it.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Command | |
+|---|---|
+| `bun dev` | Development server |
+| `bun test` | Parser and conversion tests |
+| `bun run lint` | Biome |
+| `bun run typecheck` | TypeScript |
+| `bun run bundle:beatmaps <dir>` | Rebuild `public/beatmaps` from `.osz` archives |
 
-## Deploy on Vercel
+## Beatmaps
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+`public/beatmaps/` is generated. To change the setlist, edit `CATALOGUE` in
+`scripts/bundle-beatmaps.ts`, download the `.osz` files, and re-run the bundler:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+curl -L "https://osu.direct/api/d/<setId>" -o <setId>.osz
+bun run bundle:beatmaps ./<dir-with-osz>
+```
+
+The bundler also computes each chart's maximum possible score, which the API uses
+as a ceiling when validating submissions.
+
+## Leaderboard
+
+One shared board, on the tournament map's EASY difficulty. Everything else is
+free play. `/leaderboard` is a standalone full-screen board for a second monitor.
+
+Storage sits behind `ScoreRepository`: a JSON file in development, Postgres when
+`DATABASE_URL` is set. Submissions that fail are queued in `localStorage` and
+flushed on the next successful request, so a dropped connection never costs
+somebody their score.
+
+## Deploying
+
+Docker Compose — the app and its Postgres, with the database on a named volume.
+
+```bash
+vps github deploy crafter-station/catch-the-craft -e <envId> --compose
+vps compose env <composeId> --set "POSTGRES_PASSWORD=<password>"
+vps domain add catch.crafter.run --compose <composeId> --port 3000
+```
+
+Never run `vps compose remove --delete-volumes` against this stack — that is the
+one command that destroys the leaderboard.
