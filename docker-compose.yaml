@@ -13,9 +13,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    networks:
-      - default
-      - dokploy-network
     restart: unless-stopped
 
   db:
@@ -37,7 +34,3 @@ services:
 
 volumes:
   ctb-pgdata:
-
-networks:
-  dokploy-network:
-    external: true
