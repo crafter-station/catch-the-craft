@@ -1,5 +1,7 @@
 # CATCH THE CRAFT
 
+**Live: [catch.crafter.run](https://catch.crafter.run)**
+
 osu!catch in the browser, for [The Next Craft](https://thenextcraft.org) — real osu!
 beatmaps, sponsor logos as the fruit, and an arcade leaderboard.
 
@@ -67,11 +69,27 @@ somebody their score.
 
 Docker Compose — the app and its Postgres, with the database on a named volume.
 
+Already deployed. To redeploy after a push:
+
+```bash
+vps compose redeploy zsQV6ZlBWQ5UwzxlKUBlO
+```
+
+The stack was created with:
+
 ```bash
 vps github deploy crafter-station/catch-the-craft -e <envId> --compose
 vps compose env <composeId> --set "POSTGRES_PASSWORD=<password>"
-vps domain add catch.crafter.run --compose <composeId> --port 3000
+crafters domain add catch --no-vercel --target vps.crafter.run
+vps domain add catch.crafter.run --compose <composeId> --service app --port 3000
 ```
+
+Two things the Dockerfile encodes that are easy to get wrong here. The image
+installs dependencies with Bun but builds and serves with **Node** — Bun's NAPI
+layer cannot load Turbopack's worker pool in a container, so `bun run build`
+fails there even though it works locally. And the compose file must **not**
+declare `dokploy-network`; Dokploy attaches its own network when a domain is
+bound, and naming it fails the deploy before anything is built.
 
 Never run `vps compose remove --delete-volumes` against this stack — that is the
 one command that destroys the leaderboard.

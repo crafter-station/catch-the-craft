@@ -1,5 +1,9 @@
 # CATCH THE CRAFT — Plan
 
+> **Status: shipped and live at https://catch.crafter.run**
+> Phases 1–4 are done. Remaining: hyperdash, `.osz` drag-drop, service worker,
+> QR poster, and tuning the audio offset on the booth machine.
+
 osu!Catch clone for The Next Craft (Aug 29, 2026). Next.js 16, real `.osu` beatmaps,
 sponsor logos as fruit, C64-terminal shell, leaderboard on Dokploy.
 
@@ -20,7 +24,7 @@ sponsor logos as fruit, C64-terminal shell, leaderboard on Dokploy.
 | Aesthetic | C64 terminal shell; playfield stays readable. Light scanlines only. |
 | Fruit | Circular brand-colored tokens, composited at runtime. Cosmetic only, never mechanical. |
 | Storage | `ScoreRepository` iface. JSON file = local dev. Postgres = prod. |
-| Deploy | Dokploy VPS, **docker-compose**, `crafter-station/catch-the-craft` (public). |
+| Deploy | Dokploy VPS, **docker-compose**, `crafter-station/catch-the-craft` (**private** — the repo carries commercial mp3s, and a public repo of those invites a DMCA). |
 | DB | Postgres **inside the compose stack**, named volume `ctb-pgdata`, no public port. |
 | Domain | `catch.crafter.run` |
 | Board | ONE global board on the tournament map's EASY diff. Everything else free play. |
@@ -109,3 +113,19 @@ Stretch, in order: hyperdash · `.osz` drag-drop · service worker · QR poster.
    ElevenLabs, Exa, Tavily, Vapi, Apify. Trivially changed; confirm before the event.
 4. **osu.direct is the only live mirror.** Download all four sets to disk on day 1.
 5. Never run `vps compose remove --delete-volumes`.
+
+## Deployment facts learned the hard way
+
+- Build the image with **Node**, not Bun. Bun's NAPI layer cannot load
+  Turbopack's worker pool in a container; `bun run build` fails there while
+  working locally. Dependencies still install under Bun.
+- Do **not** declare `dokploy-network` as an external network in the compose
+  file. Dokploy attaches its own when a domain is bound; naming it fails the
+  deploy in ~30s, before any build starts.
+- `vps compose deploy` queues; deployments run serially. `deployment.allByCompose`
+  on the Dokploy API is the only way to see status from the CLI side — there is
+  no log endpoint exposed, so a broken deploy is diagnosed by comparing against a
+  known-good compose on the same host (`the-next-craft` is one).
+- Adding a domain needs a redeploy before Traefik routes it.
+- IDs: project `0wOxnwTY0zlsdLwwbNsgp`, env `zB7pYNZECCBpcsiS-CPOw`,
+  compose `zsQV6ZlBWQ5UwzxlKUBlO`.
