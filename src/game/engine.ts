@@ -1,16 +1,25 @@
 import type { CatchBeatmap, CatchObject } from "@/osu/toCatch";
 import { PLAYFIELD_WIDTH } from "@/osu/types";
-import { Catcher, type MoveDirection } from "./catcher";
 import { SampleBank } from "./audio/samples";
+import { Catcher, type MoveDirection } from "./catcher";
 import { AudioClock } from "./clock";
+import { ParticleField } from "./particles";
 import { CanvasRenderer } from "./render/canvas";
+import { SPONSORS } from "./render/tokens";
 import { type ScoreSnapshot, ScoreTracker } from "./scoring";
 
 /** Silence before the music starts, so the first objects are already falling. */
 const LEAD_IN_MS = 1500;
 
+/** Shorter run-up after unpausing — the player is already oriented. */
+const RESUME_LEAD_IN_MS = 1200;
+
 /** Baseline latency compensation, nudged at the booth with `[` and `]`. */
 const DEFAULT_OFFSET_MS = 0;
+
+/** Combo values that fire a sponsor burst, then every 50 after the last one. */
+const BURST_MILESTONES = [10, 25, 50, 100];
+const BURST_INTERVAL = 50;
 
 export type InputMode = "keyboard" | "pointer";
 
@@ -30,6 +39,7 @@ export interface EngineOptions {
 	durationMs: number;
 	onUpdate?: (snapshot: ScoreSnapshot, progress: number) => void;
 	onEnd?: (result: RunResult) => void;
+	onPauseChange?: (paused: boolean) => void;
 }
 
 export interface HitEffect {
@@ -37,6 +47,14 @@ export interface HitEffect {
 	bornAtMs: number;
 	missed: boolean;
 	comboIndex: number;
+}
+
+/** An osu!-style combo burst: a sponsor sliding in at a combo milestone. */
+export interface ComboBurst {
+	sponsorIndex: number;
+	combo: number;
+	bornAtMs: number;
+	side: "left" | "right";
 }
 
 /**
@@ -51,6 +69,7 @@ export class GameEngine {
 	private readonly renderer: CanvasRenderer;
 	private readonly catcher: Catcher;
 	private readonly score = new ScoreTracker();
+	private readonly particles = new ParticleField();
 
 	private clock: AudioClock | null = null;
 	private context: AudioContext | null = null;
@@ -61,11 +80,19 @@ export class GameEngine {
 	/** Index of the earliest object that has not yet reached the plate. */
 	private nextIndex = 0;
 	private effects: HitEffect[] = [];
+	private bursts: ComboBurst[] = [];
+	private burstCount = 0;
+	private nextBurstCombo = BURST_MILESTONES[0];
+
+	/** Chart time of the most recent catch, for the plate impact flash. */
+	private lastCatchAtMs = Number.NEGATIVE_INFINITY;
 
 	private readonly held = new Set<string>();
 	private inputMode: InputMode = "keyboard";
 	private disposed = false;
 	private ended = false;
+	private paused = false;
+	private pausedAtMs = 0;
 
 	constructor(options: EngineOptions) {
 		this.options = options;
@@ -75,6 +102,10 @@ export class GameEngine {
 
 	get offsetMs(): number {
 		return this.clock?.offsetMs ?? DEFAULT_OFFSET_MS;
+	}
+
+	get isPaused(): boolean {
+		return this.paused;
 	}
 
 	async start(): Promise<void> {
@@ -93,45 +124,57 @@ export class GameEngine {
 		this.samples = samples;
 
 		this.attachInput();
-		// Rewind by the lead-in so objects fall into an empty plate before the music.
 		this.clock.start(this.options.startMs, LEAD_IN_MS);
 		this.lastFrameMs = performance.now();
 		this.frame = requestAnimationFrame(this.tick);
 	}
 
+	/**
+	 * Chart time is the audio playback position, full stop.
+	 *
+	 * The clock already counts through the lead-in — it reports negative time
+	 * until playback actually begins — so nothing here may subtract it again.
+	 * Doing so silently lands every object a lead-in behind the music, which
+	 * looks completely correct on screen and is obvious the moment you listen.
+	 */
+	private chartTime(): number {
+		return this.clock?.timeMs ?? 0;
+	}
+
 	private readonly tick = (): void => {
-		if (this.disposed) return;
+		if (this.disposed || this.paused) return;
 
 		const wallNow = performance.now();
 		const deltaMs = Math.min(50, wallNow - this.lastFrameMs);
 		this.lastFrameMs = wallNow;
 
-		const chartTime = (this.clock?.timeMs ?? 0) - LEAD_IN_MS;
+		const chartTime = this.chartTime();
 
-		this.catcher.dashing =
-			this.held.has("ShiftLeft") || this.held.has("ShiftRight");
+		this.catcher.dashing = this.isDashing();
 		this.catcher.update(deltaMs, this.direction());
 
 		this.resolveReachedObjects(chartTime);
+		this.particles.update(deltaMs);
 
 		const { startMs, durationMs, beatmap } = this.options;
 		const endMs = startMs + durationMs;
-		const progress = Math.min(
-			1,
-			Math.max(0, (chartTime - startMs) / durationMs),
-		);
+		const progress = Math.min(1, Math.max(0, (chartTime - startMs) / durationMs));
 
 		this.renderer.draw({
 			objects: this.visibleObjects(chartTime),
 			effects: this.effects,
+			particles: this.particles.all,
+			bursts: this.bursts,
 			catcher: this.catcher,
 			chartTimeMs: chartTime,
 			fallDuration: beatmap.fallDuration,
 			snapshot: this.score.snapshot(),
 			progress,
+			catchFlash: Math.max(0, 1 - (chartTime - this.lastCatchAtMs) / 140),
 		});
 
 		this.effects = this.effects.filter((e) => chartTime - e.bornAtMs < 400);
+		this.bursts = this.bursts.filter((b) => chartTime - b.bornAtMs < BURST_DURATION_MS);
 		this.options.onUpdate?.(this.score.snapshot(), progress);
 
 		const outOfObjects = this.nextIndex >= beatmap.objects.length;
@@ -151,10 +194,7 @@ export class GameEngine {
 	private resolveReachedObjects(chartTime: number): void {
 		const { objects } = this.options.beatmap;
 
-		while (
-			this.nextIndex < objects.length &&
-			objects[this.nextIndex].time <= chartTime
-		) {
+		while (this.nextIndex < objects.length && objects[this.nextIndex].time <= chartTime) {
 			const object = objects[this.nextIndex++];
 			if (object.time < this.options.startMs) continue; // before the played window
 
@@ -166,11 +206,12 @@ export class GameEngine {
 
 			if (caught) {
 				this.samples?.play(object.kind);
-				// Announce the multiplier stepping up, not every catch inside a tier.
 				if (after.multiplier > before.multiplier) this.samples?.play("comboUp");
+				this.onCaught(object, chartTime, after);
 			} else if (object.kind !== "banana" && before.combo > 0) {
 				// Only an actual break is worth a sound; missing from zero combo is not news.
 				this.samples?.play("comboBreak");
+				this.nextBurstCombo = BURST_MILESTONES[0];
 			}
 
 			if (object.kind !== "droplet" || !caught) {
@@ -182,6 +223,39 @@ export class GameEngine {
 				});
 			}
 		}
+	}
+
+	private onCaught(object: CatchObject, chartTime: number, after: ScoreSnapshot): void {
+		this.lastCatchAtMs = chartTime;
+
+		const sponsor = SPONSORS[object.comboIndex % SPONSORS.length];
+		const colour =
+			object.kind === "fruit" ? sponsor.color : object.kind === "banana" ? "#e9e7de" : "#a2a096";
+		const count = object.kind === "fruit" ? 12 : object.kind === "banana" ? 8 : 4;
+
+		this.particles.emit(
+			this.catcher.x,
+			0,
+			colour,
+			count,
+			object.kind === "fruit" ? 1 : 0.7,
+		);
+
+		if (after.combo >= this.nextBurstCombo) this.pushBurst(after.combo, chartTime);
+	}
+
+	/** Cycles sponsors so every one of them gets screen time across a session. */
+	private pushBurst(combo: number, chartTime: number): void {
+		this.bursts.push({
+			sponsorIndex: this.burstCount % SPONSORS.length,
+			combo,
+			bornAtMs: chartTime,
+			side: this.burstCount % 2 === 0 ? "right" : "left",
+		});
+		this.burstCount++;
+
+		const next = BURST_MILESTONES.find((m) => m > combo);
+		this.nextBurstCombo = next ?? combo + BURST_INTERVAL;
 	}
 
 	private visibleObjects(chartTime: number): CatchObject[] {
@@ -196,12 +270,50 @@ export class GameEngine {
 		return visible;
 	}
 
+	private isDashing(): boolean {
+		return (
+			this.held.has("ShiftLeft") || this.held.has("ShiftRight") || this.held.has("Space")
+		);
+	}
+
 	private direction(): MoveDirection {
 		if (this.inputMode === "pointer") return 0;
 		const left = this.held.has("ArrowLeft") || this.held.has("KeyA");
 		const right = this.held.has("ArrowRight") || this.held.has("KeyD");
 		if (left === right) return 0;
 		return left ? -1 : 1;
+	}
+
+	// ─── Pause ────────────────────────────────────────────────────────────
+
+	pause(): void {
+		if (this.paused || this.ended || !this.clock) return;
+
+		this.pausedAtMs = this.chartTime();
+		this.clock.stop();
+		cancelAnimationFrame(this.frame);
+		this.paused = true;
+		this.held.clear();
+		this.options.onPauseChange?.(true);
+	}
+
+	/**
+	 * Resumes a little before where the player left off, so objects are already
+	 * falling again when control returns rather than landing the instant it does.
+	 */
+	resume(): void {
+		if (!this.paused || this.ended || !this.clock) return;
+
+		this.paused = false;
+		this.clock.start(this.pausedAtMs, RESUME_LEAD_IN_MS);
+		this.lastFrameMs = performance.now();
+		this.frame = requestAnimationFrame(this.tick);
+		this.options.onPauseChange?.(false);
+	}
+
+	togglePause(): void {
+		if (this.paused) this.resume();
+		else this.pause();
 	}
 
 	private finish(): void {
@@ -215,6 +327,8 @@ export class GameEngine {
 		});
 	}
 
+	// ─── Input ────────────────────────────────────────────────────────────
+
 	private attachInput(): void {
 		window.addEventListener("keydown", this.onKeyDown);
 		window.addEventListener("keyup", this.onKeyUp);
@@ -223,6 +337,12 @@ export class GameEngine {
 	}
 
 	private readonly onKeyDown = (event: KeyboardEvent): void => {
+		if (event.code === "Escape") {
+			event.preventDefault();
+			this.togglePause();
+			return;
+		}
+
 		if (event.code === "BracketLeft" || event.code === "BracketRight") {
 			if (this.clock) {
 				this.clock.offsetMs += event.code === "BracketLeft" ? -5 : 5;
@@ -231,7 +351,9 @@ export class GameEngine {
 		}
 
 		if (MOVEMENT_KEYS.has(event.code)) {
+			// Space scrolls the page and re-triggers focused buttons if left alone.
 			event.preventDefault();
+			if (this.paused) return;
 			this.inputMode = "keyboard";
 			this.catcher.setPointerTarget(null);
 			this.held.add(event.code);
@@ -243,11 +365,11 @@ export class GameEngine {
 	};
 
 	private readonly onPointerMove = (event: PointerEvent): void => {
+		if (this.paused) return;
+
 		const rect = this.options.canvas.getBoundingClientRect();
 		const playfield = this.renderer.playfieldRect(rect.width, rect.height);
-		const x =
-			((event.clientX - rect.left - playfield.x) / playfield.width) *
-			PLAYFIELD_WIDTH;
+		const x = ((event.clientX - rect.left - playfield.x) / playfield.width) * PLAYFIELD_WIDTH;
 
 		this.inputMode = "pointer";
 		this.held.clear();
@@ -267,6 +389,9 @@ export class GameEngine {
 	}
 }
 
+/** How long a combo burst stays on screen, in ms. */
+export const BURST_DURATION_MS = 1500;
+
 const MOVEMENT_KEYS = new Set([
 	"ArrowLeft",
 	"ArrowRight",
@@ -274,4 +399,5 @@ const MOVEMENT_KEYS = new Set([
 	"KeyD",
 	"ShiftLeft",
 	"ShiftRight",
+	"Space",
 ]);

@@ -1,22 +1,28 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { GameEngine, type RunResult } from "@/game/engine";
 import type { BeatmapEntry, Tier } from "@/game/library";
 import { loadChart } from "@/game/library";
+import { PauseMenu } from "./PauseMenu";
 
 interface Props {
 	entry: BeatmapEntry;
 	tier: Tier;
 	onEnd: (result: RunResult) => void;
+	onQuit: () => void;
 	onError: (message: string) => void;
 }
 
-export function GameCanvas({ entry, tier, onEnd, onError }: Props) {
+export function GameCanvas({ entry, tier, onEnd, onQuit, onError }: Props) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const engineRef = useRef<GameEngine | null>(null);
+	const [paused, setPaused] = useState(false);
 
-	// The engine owns the frame loop and never touches React state, so this effect
-	// exists only to create it, hand it a canvas, and tear it down.
+	// Bumping this tears the engine down and builds a fresh one, which is all a
+	// retry needs to be: no reset path to keep in step with the constructor.
+	const [attempt, setAttempt] = useState(0);
+
 	const endRef = useRef(onEnd);
 	const errorRef = useRef(onError);
 	endRef.current = onEnd;
@@ -28,6 +34,7 @@ export function GameCanvas({ entry, tier, onEnd, onError }: Props) {
 
 		let engine: GameEngine | null = null;
 		let cancelled = false;
+		setPaused(false);
 
 		(async () => {
 			try {
@@ -43,13 +50,13 @@ export function GameCanvas({ entry, tier, onEnd, onError }: Props) {
 					startMs: entry.startMs,
 					durationMs: entry.durationMs,
 					onEnd: (result) => endRef.current(result),
+					onPauseChange: setPaused,
 				});
+				engineRef.current = engine;
 				await engine.start();
 			} catch (error) {
 				if (!cancelled) {
-					errorRef.current(
-						error instanceof Error ? error.message : "Failed to start run",
-					);
+					errorRef.current(error instanceof Error ? error.message : "Failed to start run");
 				}
 			}
 		})();
@@ -57,14 +64,23 @@ export function GameCanvas({ entry, tier, onEnd, onError }: Props) {
 		return () => {
 			cancelled = true;
 			engine?.dispose();
+			engineRef.current = null;
 		};
-	}, [entry, tier]);
+	}, [entry, tier, attempt]);
+
+	const handleContinue = useCallback(() => engineRef.current?.resume(), []);
+	const handleRetry = useCallback(() => setAttempt((value) => value + 1), []);
 
 	return (
-		<canvas
-			ref={canvasRef}
-			className="block h-dvh w-full touch-none"
-			aria-label={`${entry.artist} - ${entry.title}, ${tier}`}
-		/>
+		<>
+			<canvas
+				ref={canvasRef}
+				className="block h-dvh w-full touch-none"
+				aria-label={`${entry.artist} - ${entry.title}, ${tier}`}
+			/>
+			{paused && (
+				<PauseMenu onContinue={handleContinue} onRetry={handleRetry} onQuit={onQuit} />
+			)}
+		</>
 	);
 }

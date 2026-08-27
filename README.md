@@ -10,8 +10,10 @@ bun install
 bun dev
 ```
 
-Open the app and pick a track. Arrows or `A`/`D` to move, `Shift` to dash, or just
-aim with the mouse. On a phone, drag anywhere on the playfield.
+Open the app and pick a track. Arrows or `A`/`D` to move, `Shift` or `Space` to
+dash, or just aim with the mouse. On a phone, drag anywhere on the playfield.
+`Esc` opens the pause menu — continue, retry, quit. `[` and `]` nudge the audio
+offset by 5ms if the booth machine needs it.
 
 ## How it works
 
@@ -37,6 +39,18 @@ never depends on it.
 
 Hitsounds are osu!'s own samples, played through the same `AudioContext` as the
 music. A second context would run on its own hardware callback and drift.
+
+**Chart time is the audio playback position, and nothing else.** `AudioClock`
+already counts through the lead-in, reporting negative time until playback
+begins, so no caller may subtract the lead-in again — doing so lands every
+object a lead-in behind the music, which looks entirely correct on screen and is
+obvious the moment you listen. Measured drift on a real chart is under 20ms.
+
+Catching sprays particles in the sponsor's colour and presses the plate into its
+shadow. At combo milestones a sponsor slides in from the edge, osu!'s combo
+bursts with logos in place of anime characters; they cycle the roster rather
+than following the fruit, so every sponsor gets airtime regardless of which
+logos happened to spawn.
 
 ## Look and feel
 

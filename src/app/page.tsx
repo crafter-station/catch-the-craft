@@ -39,6 +39,7 @@ export default function Home() {
 				entry={phase.entry}
 				tier={phase.tier}
 				onEnd={(result) => setPhase({ name: "results", entry: phase.entry, result })}
+				onQuit={() => setPhase({ name: "select" })}
 				onError={(message) => setPhase({ name: "error", message })}
 			/>
 		);
@@ -147,8 +148,9 @@ function SongSelect({
 			</ul>
 
 			<p className="section-label mt-10">
-				Arrows or A/D to move &middot; Shift to dash &middot; Mouse to aim
+				Arrows or A/D to move &middot; Shift or Space to dash &middot; Mouse to aim
 			</p>
+			<p className="mt-2 text-[color:var(--text-dim)] text-xs">ESC opens the menu mid-run.</p>
 		</section>
 	);
 }

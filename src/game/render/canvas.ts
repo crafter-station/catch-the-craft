@@ -1,7 +1,8 @@
 import type { CatchObject } from "@/osu/toCatch";
 import { PLAYFIELD_WIDTH } from "@/osu/types";
 import type { Catcher } from "../catcher";
-import type { HitEffect } from "../engine";
+import { BURST_DURATION_MS, type ComboBurst, type HitEffect } from "../engine";
+import type { Particle } from "../particles";
 import type { ScoreSnapshot } from "../scoring";
 import { TokenAtlas } from "./tokens";
 
@@ -31,15 +32,23 @@ const GRID_SIZE = 46;
 const PIXEL_FONT = '"Silkscreen", ui-monospace, monospace';
 const MONO_FONT = '"IBM Plex Mono", ui-monospace, monospace';
 
+/** Combo burst timing, in ms within BURST_DURATION_MS. */
+const BURST_SLIDE_MS = 260;
+const BURST_FADE_AT_MS = 1100;
+
 export interface Frame {
 	objects: CatchObject[];
 	effects: HitEffect[];
+	particles: readonly Particle[];
+	bursts: ComboBurst[];
 	catcher: Catcher;
 	chartTimeMs: number;
 	fallDuration: number;
 	snapshot: ScoreSnapshot;
 	/** 0..1 through the played window. */
 	progress: number;
+	/** 1 immediately after a catch, decaying to 0. Drives the plate impact. */
+	catchFlash: number;
 }
 
 export interface Rect {
@@ -94,8 +103,10 @@ export class CanvasRenderer {
 			this.drawObject(object, field.x + object.x * scale, y, scale);
 		}
 
+		this.drawParticles(frame, field, scale, lineY);
 		this.drawEffects(frame, field, scale, lineY);
-		this.drawCatcher(frame.catcher, field, scale, lineY);
+		this.drawCatcher(frame, field, scale, lineY);
+		this.drawBursts(frame, width, height);
 		this.drawHud(frame, width, height);
 	}
 
@@ -173,6 +184,27 @@ export class CanvasRenderer {
 		ctx.stroke();
 	}
 
+	/** Particles carry playfield coordinates; only this converts them to pixels. */
+	private drawParticles(frame: Frame, field: Rect, scale: number, lineY: number): void {
+		const ctx = this.ctx;
+
+		for (const particle of frame.particles) {
+			ctx.globalAlpha = Math.max(0, particle.life / particle.maxLife);
+			ctx.fillStyle = particle.color;
+			ctx.beginPath();
+			ctx.arc(
+				field.x + particle.x * scale,
+				lineY + particle.y * scale,
+				particle.size * scale,
+				0,
+				Math.PI * 2,
+			);
+			ctx.fill();
+		}
+
+		ctx.globalAlpha = 1;
+	}
+
 	private drawEffects(frame: Frame, field: Rect, scale: number, lineY: number): void {
 		const ctx = this.ctx;
 
@@ -211,29 +243,96 @@ export class CanvasRenderer {
 	/**
 	 * The plate is a C64 keycap: bone, hard-edged, with the same 3px extruded
 	 * shadow the landing page puts under its buttons. Dashing lifts it off that
-	 * shadow — their `:active` state, run in reverse.
+	 * shadow — their `:active` state, run in reverse — and a catch presses it down.
 	 */
-	private drawCatcher(catcher: Catcher, field: Rect, scale: number, lineY: number): void {
+	private drawCatcher(frame: Frame, field: Rect, scale: number, lineY: number): void {
 		const ctx = this.ctx;
+		const { catcher, catchFlash } = frame;
+
 		const width = catcher.width * scale;
-		const height = 16;
+		const press = catchFlash * 2.5;
+		const height = 16 - press * 0.5;
 		const left = field.x + catcher.x * scale - width / 2;
-		const top = lineY - height;
+		const lift = (catcher.dashing ? 3 : 0) - press;
+		const top = lineY - height - lift;
 		const radius = 4;
-		const lift = catcher.dashing ? 3 : 0;
 
 		ctx.fillStyle = KEY_SHADOW;
 		ctx.beginPath();
-		ctx.roundRect(left, top - lift + 3, width, height, radius);
+		ctx.roundRect(left, top + 3, width, height, radius);
 		ctx.fill();
 
-		ctx.fillStyle = catcher.dashing ? "#f4f2ea" : BONE;
+		ctx.fillStyle = catcher.dashing || catchFlash > 0.15 ? "#f8f6ee" : BONE;
 		ctx.strokeStyle = KEY_SHADOW;
 		ctx.lineWidth = 1;
 		ctx.beginPath();
-		ctx.roundRect(left, top - lift, width, height, radius);
+		ctx.roundRect(left, top, width, height, radius);
 		ctx.fill();
 		ctx.stroke();
+
+		// A brief halo so a catch registers even when the plate is off in the corner.
+		if (catchFlash > 0) {
+			ctx.globalAlpha = catchFlash * 0.5;
+			ctx.strokeStyle = BRIGHT;
+			ctx.lineWidth = 2;
+			ctx.beginPath();
+			ctx.roundRect(left - 4, top - 4, width + 8, height + 8, radius + 3);
+			ctx.stroke();
+			ctx.globalAlpha = 1;
+		}
+	}
+
+	/**
+	 * osu!'s combo bursts, with sponsors in place of anime characters: at each
+	 * milestone one slides in from the edge, holds, and fades. They cycle through
+	 * the roster rather than following the fruit, so every sponsor gets airtime
+	 * over a session regardless of which logos happened to spawn.
+	 */
+	private drawBursts(frame: Frame, width: number, height: number): void {
+		const ctx = this.ctx;
+		const size = Math.min(190, width * 0.17);
+
+		for (const burst of frame.bursts) {
+			const age = frame.chartTimeMs - burst.bornAtMs;
+			if (age < 0 || age > BURST_DURATION_MS) continue;
+
+			const slide = easeOut(Math.min(1, age / BURST_SLIDE_MS));
+			const alpha =
+				age > BURST_FADE_AT_MS
+					? 1 - (age - BURST_FADE_AT_MS) / (BURST_DURATION_MS - BURST_FADE_AT_MS)
+					: 1;
+
+			const token = this.atlas?.forCombo(burst.sponsorIndex);
+			const sponsor = this.atlas?.sponsorForCombo(burst.sponsorIndex);
+			if (!token || !sponsor) continue;
+
+			const edge = 28;
+			const hidden = size + edge + 40;
+			const x =
+				burst.side === "left"
+					? edge - hidden * (1 - slide)
+					: width - edge - size + hidden * (1 - slide);
+			const y = height * 0.34;
+
+			ctx.globalAlpha = alpha;
+			ctx.drawImage(token, x, y, size, size);
+
+			ctx.textAlign = burst.side === "left" ? "left" : "right";
+			const textX = burst.side === "left" ? x : x + size;
+
+			ctx.font = `700 ${Math.round(size * 0.2)}px ${PIXEL_FONT}`;
+			ctx.fillStyle = TEXT;
+			ctx.textBaseline = "top";
+			ctx.fillText(`${burst.combo}x`, textX, y + size + 14);
+
+			ctx.font = `600 12px ${MONO_FONT}`;
+			ctx.fillStyle = sponsor.color;
+			ctx.letterSpacing = "0.12em";
+			ctx.fillText(sponsor.name.toUpperCase(), textX, y + size + 14 + size * 0.26);
+			ctx.letterSpacing = "0px";
+
+			ctx.globalAlpha = 1;
+		}
 	}
 
 	private drawHud(frame: Frame, width: number, height: number): void {
@@ -273,7 +372,15 @@ export class CanvasRenderer {
 		ctx.font = `500 11px ${MONO_FONT}`;
 		ctx.fillStyle = LINE;
 		ctx.letterSpacing = "0.12em";
-		ctx.fillText("LEFT / RIGHT MOVE    SHIFT DASH    MOUSE TO AIM", width / 2, height - 26);
+		ctx.fillText(
+			"LEFT / RIGHT MOVE    SHIFT OR SPACE DASH    ESC MENU",
+			width / 2,
+			height - 26,
+		);
 		ctx.letterSpacing = "0px";
 	}
+}
+
+function easeOut(t: number): number {
+	return 1 - (1 - t) ** 3;
 }
