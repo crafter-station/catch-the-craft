@@ -288,13 +288,6 @@ export class CanvasRenderer {
 		ctx.fill();
 		ctx.stroke();
 
-		// The run's partner rides the plate, sitting on its top edge.
-		const partner = this.atlas?.forCombo(frame.partnerIndex);
-		if (partner) {
-			const size = Math.min(34, width * 0.32);
-			ctx.drawImage(partner, left + width / 2 - size / 2, top - size * 0.72, size, size);
-		}
-
 		// A brief halo so a catch registers even when the plate is off in the corner.
 		if (catchFlash > 0) {
 			ctx.globalAlpha = catchFlash * 0.5;
@@ -303,6 +296,25 @@ export class CanvasRenderer {
 			ctx.beginPath();
 			ctx.roundRect(left - 4, top - 4, width + 8, height + 8, radius + 3);
 			ctx.stroke();
+			ctx.globalAlpha = 1;
+		}
+
+		// The run's partner sits under the plate: the bare logo, no disc and no
+		// backing, so it reads as a mark on the field rather than as another fruit.
+		const partner = this.atlas?.markFor(frame.partnerIndex);
+		if (partner) {
+			// Scaled by width, with the height read off the mark, so wide wordmarks
+			// stay readable instead of collapsing into a smudge.
+			const markWidth = Math.min(width * 0.62, 120);
+			const markHeight = markWidth * (partner.height / partner.width);
+			ctx.globalAlpha = 0.9;
+			ctx.drawImage(
+				partner,
+				left + width / 2 - markWidth / 2,
+				top + height + 7,
+				markWidth,
+				markHeight,
+			);
 			ctx.globalAlpha = 1;
 		}
 	}

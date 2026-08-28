@@ -2,7 +2,8 @@ import { readFileSync } from "node:fs";
 import { parseOsu } from "../src/osu/parse";
 import { toCatchBeatmap, catcherWidthFor, fallDurationFor } from "../src/osu/toCatch";
 
-for (const slug of ["attitude", "what-ive-done", "sugary-daydream", "kimi-no-shiranai-monogatari"]) {
+const manifest = JSON.parse(readFileSync("public/beatmaps/manifest.json", "utf8"));
+for (const slug of manifest.map((entry: { slug: string }) => entry.slug)) {
   for (const tier of ["easy", "normal", "hard"]) {
     const raw = readFileSync(`public/beatmaps/${slug}/${tier}.osu`, "utf8");
     const map = parseOsu(raw);

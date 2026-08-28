@@ -34,15 +34,24 @@ const TOKEN_SIZE = 96;
 /** Keeps the fitted logo clear of the rim. */
 const LOGO_INSET = 0.9;
 
+/** Ink for the disc-free mark, which sits directly on the dark playfield. */
+const MARK_INK = "#e6e3d8";
+
+/** Width the bare mark is rendered at. Its height follows the logo's own ratio. */
+const MARK_WIDTH = 200;
+
 export class TokenAtlas {
 	private readonly tokens: HTMLCanvasElement[] = [];
+	private readonly marks: HTMLCanvasElement[] = [];
 
 	static async load(): Promise<TokenAtlas> {
 		const atlas = new TokenAtlas();
-		const drawn = await Promise.all(
-			SPONSORS.map((sponsor) => renderToken(sponsor)),
-		);
-		atlas.tokens.push(...drawn);
+		const drawn = await Promise.all(SPONSORS.map((sponsor) => renderSponsor(sponsor)));
+
+		for (const { token, mark } of drawn) {
+			atlas.tokens.push(token);
+			atlas.marks.push(mark);
+		}
 		return atlas;
 	}
 
@@ -55,17 +64,32 @@ export class TokenAtlas {
 		return this.tokens[comboIndex % this.tokens.length];
 	}
 
+	/**
+	 * The bare logo, no disc and no background — for places that already sit on
+	 * top of something, like the sponsor riding the plate.
+	 */
+	markFor(index: number): HTMLCanvasElement {
+		return this.marks[index % this.marks.length];
+	}
+
 	sponsorForCombo(comboIndex: number): Sponsor {
 		return SPONSORS[comboIndex % SPONSORS.length];
 	}
 }
 
-async function renderToken(sponsor: Sponsor): Promise<HTMLCanvasElement> {
+interface RenderedSponsor {
+	/** Brand-coloured disc with the logo knocked out of it, used for fruit. */
+	token: HTMLCanvasElement;
+	/** The logo alone, on transparent, for drawing over other things. */
+	mark: HTMLCanvasElement;
+}
+
+async function renderSponsor(sponsor: Sponsor): Promise<RenderedSponsor> {
 	const canvas = document.createElement("canvas");
 	canvas.width = TOKEN_SIZE;
 	canvas.height = TOKEN_SIZE;
 	const ctx = canvas.getContext("2d");
-	if (!ctx) return canvas;
+	if (!ctx) return { token: canvas, mark: canvas };
 
 	const centre = TOKEN_SIZE / 2;
 	const radius = centre - 3;
@@ -82,16 +106,15 @@ async function renderToken(sponsor: Sponsor): Promise<HTMLCanvasElement> {
 	ctx.stroke();
 
 	const ink = contrastInk(sponsor.color);
+	let mark: HTMLCanvasElement;
 
 	try {
 		const logo = await loadSvg(`/sponsors/${sponsor.slug}.svg`);
-		ctx.drawImage(
-			knockOut(logo, ink, radius),
-			0,
-			0,
-			TOKEN_SIZE,
-			TOKEN_SIZE,
-		);
+		ctx.drawImage(knockOut(logo, ink, radius), 0, 0, TOKEN_SIZE, TOKEN_SIZE);
+		// The standalone mark is inked light and keeps the logo's own proportions:
+		// there is no disc to inscribe it in, and squeezing a wordmark into a circle
+		// is what made it unreadable at plate size.
+		mark = renderMark(logo, MARK_INK);
 	} catch {
 		// A logo that will not load falls back to its initial rather than a blank disc.
 		ctx.fillStyle = ink;
@@ -99,8 +122,46 @@ async function renderToken(sponsor: Sponsor): Promise<HTMLCanvasElement> {
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
 		ctx.fillText(sponsor.name[0].toUpperCase(), centre, centre + 2);
+		mark = letterMark(sponsor.name[0].toUpperCase());
 	}
 
+	return { token: canvas, mark };
+}
+
+/**
+ * The logo as a flat silhouette at its natural aspect ratio, on transparent.
+ * Callers scale it by width and read the height back off the canvas.
+ */
+function renderMark(logo: HTMLImageElement, ink: string): HTMLCanvasElement {
+	const aspect = logo.width / Math.max(1, logo.height);
+	const canvas = document.createElement("canvas");
+	canvas.width = MARK_WIDTH;
+	canvas.height = Math.max(12, Math.round(MARK_WIDTH / aspect));
+
+	const ctx = canvas.getContext("2d");
+	if (!ctx) return canvas;
+
+	ctx.drawImage(logo, 0, 0, canvas.width, canvas.height);
+	ctx.globalCompositeOperation = "source-in";
+	ctx.fillStyle = ink;
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	return canvas;
+}
+
+/** Fallback mark when a logo will not load. */
+function letterMark(letter: string): HTMLCanvasElement {
+	const canvas = document.createElement("canvas");
+	canvas.width = MARK_WIDTH;
+	canvas.height = Math.round(MARK_WIDTH / 3);
+	const ctx = canvas.getContext("2d");
+	if (!ctx) return canvas;
+
+	ctx.fillStyle = MARK_INK;
+	ctx.font = `bold ${canvas.height * 0.8}px "Silkscreen", monospace`;
+	ctx.textAlign = "center";
+	ctx.textBaseline = "middle";
+	ctx.fillText(letter, canvas.width / 2, canvas.height / 2);
 	return canvas;
 }
 

@@ -29,6 +29,11 @@ const CATALOGUE: Bundled[] = [
   { setId: 2558930, slug: "kimi-no-shiranai-monogatari", startMs: 0, durationMs: 90_000, tournament: false },
   { setId: 2469870, slug: "what-ive-done", startMs: 30_000, durationMs: 90_000, tournament: false },
   { setId: 1478481, slug: "sugary-daydream", startMs: 25_000, durationMs: 90_000, tournament: false },
+  { setId: 2572301, slug: "boom-boom-boom-boom", startMs: 0, durationMs: 90_000, tournament: false },
+  { setId: 2377500, slug: "rockefeller-street", startMs: 0, durationMs: 90_000, tournament: false },
+  { setId: 2504028, slug: "black-rover", startMs: 0, durationMs: 90_000, tournament: false },
+  { setId: 2496961, slug: "more-jump-more", startMs: 0, durationMs: 90_000, tournament: false },
+  { setId: 2471999, slug: "hate-the-way-you-love-me", startMs: 0, durationMs: 90_000, tournament: false },
 ];
 
 /** Difficulty names we surface, in ascending order, mapped to our own tiers. */

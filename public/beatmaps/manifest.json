@@ -158,5 +158,205 @@
         "maxScore": 1554200
       }
     ]
+  },
+  {
+    "slug": "boom-boom-boom-boom",
+    "setId": 2572301,
+    "title": "Boom, Boom, Boom, Boom!! (Nightcore & Cut Ver.)",
+    "artist": "Vengaboys",
+    "audio": "/beatmaps/boom-boom-boom-boom/audio.mp3",
+    "startMs": 0,
+    "durationMs": 90000,
+    "previewMs": 30809,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Rekkit's Cup",
+        "circleSize": 2.5,
+        "approachRate": 6,
+        "objectCount": 115,
+        "maxScore": 339650
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Eunie's Salad",
+        "circleSize": 3,
+        "approachRate": 7,
+        "objectCount": 139,
+        "maxScore": 497250
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "CyborKk's Platter",
+        "circleSize": 3.5,
+        "approachRate": 8,
+        "objectCount": 149,
+        "maxScore": 576850
+      }
+    ]
+  },
+  {
+    "slug": "rockefeller-street",
+    "setId": 2377500,
+    "title": "Rockefeller Street (New Nightcore) [#Rockefellerstreet Remix]",
+    "artist": "Getter Jaani",
+    "audio": "/beatmaps/rockefeller-street/audio.mp3",
+    "startMs": 0,
+    "durationMs": 90000,
+    "previewMs": 41728,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Eunie's Cup",
+        "circleSize": 2.5,
+        "approachRate": 5.8,
+        "objectCount": 275,
+        "maxScore": 507500
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "LechuDes's Salad",
+        "circleSize": 3,
+        "approachRate": 6.8,
+        "objectCount": 337,
+        "maxScore": 670800
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Kegare's Platter",
+        "circleSize": 3.5,
+        "approachRate": 7.8,
+        "objectCount": 765,
+        "maxScore": 1052400
+      }
+    ]
+  },
+  {
+    "slug": "black-rover",
+    "setId": 2504028,
+    "title": "Black Rover (TV Size)",
+    "artist": "Vickeblanka",
+    "audio": "/beatmaps/black-rover/audio.mp3",
+    "startMs": 0,
+    "durationMs": 90000,
+    "previewMs": 45733,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Cup",
+        "circleSize": 2.5,
+        "approachRate": 6,
+        "objectCount": 170,
+        "maxScore": 593050
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Stardust Prism's Salad",
+        "circleSize": 3,
+        "approachRate": 7,
+        "objectCount": 184,
+        "maxScore": 678850
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "xornado's Platter",
+        "circleSize": 3.5,
+        "approachRate": 8,
+        "objectCount": 207,
+        "maxScore": 983650
+      }
+    ]
+  },
+  {
+    "slug": "more-jump-more",
+    "setId": 2496961,
+    "title": "More! Jump! More! (Game Ver.)",
+    "artist": "MORE MORE JUMP! x Hatsune Miku",
+    "audio": "/beatmaps/more-jump-more/audio.mp3",
+    "startMs": 0,
+    "durationMs": 90000,
+    "previewMs": 50390,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Cup",
+        "circleSize": 2.5,
+        "approachRate": 6,
+        "objectCount": 277,
+        "maxScore": 703600
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Salad",
+        "circleSize": 3,
+        "approachRate": 7,
+        "objectCount": 328,
+        "maxScore": 841200
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Platter",
+        "circleSize": 3.5,
+        "approachRate": 8,
+        "objectCount": 391,
+        "maxScore": 1132800
+      }
+    ]
+  },
+  {
+    "slug": "hate-the-way-you-love-me",
+    "setId": 2471999,
+    "title": "hate the way you love me (nightcore & cut ver.)",
+    "artist": "renforshort",
+    "audio": "/beatmaps/hate-the-way-you-love-me/audio.mp3",
+    "startMs": 0,
+    "durationMs": 90000,
+    "previewMs": 35539,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "cup",
+        "circleSize": 2,
+        "approachRate": 6,
+        "objectCount": 132,
+        "maxScore": 410400
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "vaqu's salad",
+        "circleSize": 3,
+        "approachRate": 7,
+        "objectCount": 158,
+        "maxScore": 467600
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "juansy's platter",
+        "circleSize": 3.5,
+        "approachRate": 8,
+        "objectCount": 166,
+        "maxScore": 576000
+      }
+    ]
   }
 ]
