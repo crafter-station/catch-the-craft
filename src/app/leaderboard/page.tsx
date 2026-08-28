@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { useStrings } from "@/i18n/strings";
 import { fetchTotals } from "@/scores/client";
 import type { TotalEntry } from "@/scores/repository";
 import { Board } from "@/ui/Board";
@@ -20,6 +21,7 @@ const POLL_MS = 5000;
  * look, and a dropped poll costs nothing.
  */
 export default function Leaderboard() {
+	const { t } = useStrings();
 	const [scores, setScores] = useState<TotalEntry[]>([]);
 	const [offline, setOffline] = useState(false);
 
@@ -46,15 +48,15 @@ export default function Leaderboard() {
 
 			<main className="relative z-10 mx-auto flex h-dvh max-w-5xl flex-col px-8 py-10">
 				<header className="border-[color:var(--border)] border-b pb-5">
-					<p className="section-label">The Next Craft &middot; Arcade</p>
-					<h1 className="pixel-heading mt-3 text-4xl sm:text-6xl">High scores</h1>
+					<p className="section-label">{t.arcade}</p>
+					<h1 className="pixel-heading mt-3 text-4xl sm:text-6xl">{t.highScores}</h1>
 					<p className="mt-3 text-[color:var(--text-dim)] text-sm">
-						Total across every song played
+						{t.totalAcross}
 					</p>
 				</header>
 
 				{offline && (
-					<p className="mt-4 text-[color:var(--destructive)]">?BOARD OFFLINE — RETRYING</p>
+					<p className="mt-4 text-[color:var(--destructive)]">{t.boardOffline}</p>
 				)}
 
 				<div className="gallery-mask gallery-scroll min-h-0 flex-1 overflow-y-auto pr-2">
@@ -65,7 +67,7 @@ export default function Leaderboard() {
 					href="/"
 					className="section-label mt-6 text-[color:var(--text-dim)] hover:text-[color:var(--bright)]"
 				>
-					&lt; Back to game
+					&lt; {t.backToGame}
 				</Link>
 			</main>
 		</div>

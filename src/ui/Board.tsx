@@ -1,5 +1,7 @@
 "use client";
 
+import { useStrings } from "@/i18n/strings";
+
 /**
  * One row of any board. Per-song entries and cumulative totals share a shape,
  * so the same table renders both — `runs` is the only thing totals add.
@@ -22,8 +24,10 @@ interface Props {
 }
 
 export function Board({ scores, highlight, size = "compact" }: Props) {
+	const { t } = useStrings();
+
 	if (scores.length === 0) {
-		return <p className="mt-6 text-[color:var(--text-dim)]">NO SCORES YET. BE FIRST.</p>;
+		return <p className="mt-6 text-[color:var(--text-dim)]">{t.noScores}</p>;
 	}
 
 	const display = size === "display";
@@ -65,7 +69,7 @@ export function Board({ scores, highlight, size = "compact" }: Props) {
 									display ? "text-lg" : "text-xs"
 								}`}
 							>
-								{entry.runs} run{entry.runs === 1 ? "" : "s"}
+								{entry.runs} {entry.runs === 1 ? t.run : t.runs}
 							</span>
 						)}
 

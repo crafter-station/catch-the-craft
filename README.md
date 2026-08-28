@@ -119,6 +119,22 @@ bun run bundle:beatmaps ./<dir-with-osz>
 The bundler also computes each chart's maximum possible score, which the API uses
 as a ceiling when validating submissions.
 
+## Accounts and language
+
+Clerk handles sign-in (Google, GitHub, email+password). Nothing is gated — the
+booth stays playable by anyone who walks up, and an anonymous run still reaches
+the board under a typed name. Signing in means the score is attributed to a
+Clerk user id, the display name is the account's email read server-side, and
+only your best on each song and difficulty is kept.
+
+Identity is never taken from the request body. A crafted POST cannot claim
+another player's id or name.
+
+The interface is English by default with a Spanish switch on the start and title
+screens, stored per browser like the volume. Switching language also swaps the
+menu theme to the Spanish cut of the same track, not to a different song — see
+`MENU_THEMES` in `src/app/page.tsx` and `src/i18n/`.
+
 ## Screens
 
 `Title -> Play | Settings`, then `Songs -> Song -> Run -> Results`. Choosing a

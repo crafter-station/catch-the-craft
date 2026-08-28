@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { disposePreview, previewEffects } from "@/game/audio/preview";
+import { useStrings } from "@/i18n/strings";
 import {
 	type AudioSettings,
 	audioSettings,
@@ -35,6 +36,7 @@ export function useAudioSettings(): AudioSettings {
 }
 
 export function SoundControls({ preview = false, compact = false }: Props) {
+	const { t } = useStrings();
 	const settings = useAudioSettings();
 
 	useEffect(() => (preview ? disposePreview : undefined), [preview]);
@@ -42,27 +44,27 @@ export function SoundControls({ preview = false, compact = false }: Props) {
 	return (
 		<div className={compact ? "" : "panel p-5"}>
 			<div className="flex items-center justify-between">
-				<p className="section-label">Audio</p>
+				<p className="section-label">{t.audio}</p>
 				<button
 					type="button"
 					onClick={() => setAudioSettings({ muted: !settings.muted })}
 					className={`${settings.muted ? "keycap" : "keycap-ghost"} px-3 py-1 text-xs`}
 					aria-pressed={settings.muted}
 				>
-					{settings.muted ? "MUTED" : "MUTE"}
+					{settings.muted ? t.muted : t.mute}
 				</button>
 			</div>
 
 			<div className={`mt-4 space-y-3 ${settings.muted ? "opacity-40" : ""}`}>
 				<Slider
 					id="volume-music"
-					label="Music"
+					label={t.music}
 					value={settings.music}
 					onChange={(music) => setAudioSettings({ music })}
 				/>
 				<Slider
 					id="volume-effects"
-					label="Effects"
+					label={t.effects}
 					value={settings.effects}
 					onChange={(effects) => {
 						setAudioSettings({ effects });

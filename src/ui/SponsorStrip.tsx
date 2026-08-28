@@ -1,3 +1,7 @@
+"use client";
+
+import { useStrings } from "@/i18n/strings";
+
 /**
  * The sponsor wall along the bottom of the title screen, as a broadcast crawl.
  *
@@ -33,9 +37,11 @@ const SPONSORS = [
 ];
 
 export function SponsorStrip({ className = "" }: { className?: string }) {
+	const { t } = useStrings();
+
 	return (
 		<footer className={`border-[color:var(--border)] border-t pt-4 ${className}`}>
-			<p className="section-label text-[color:var(--text-dim)]">Sponsors</p>
+			<p className="section-label text-[color:var(--text-dim)]">{t.sponsors}</p>
 
 			<div className="marquee mt-3">
 				<div className="marquee-track">

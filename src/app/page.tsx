@@ -1,6 +1,8 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
+import type { Locale } from "@/i18n/locale";
+import { tierLabel, useStrings } from "@/i18n/strings";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { prefetchAudio } from "@/game/audio/cache";
@@ -18,15 +20,22 @@ import { ParticipantCarousel } from "@/ui/ParticipantCarousel";
 import { ShakyText } from "@/ui/ShakyText";
 import { SponsorStrip } from "@/ui/SponsorStrip";
 import { SoundControls } from "@/ui/SoundControls";
+import { LanguageToggle } from "@/ui/LanguageToggle";
 import { MadeBy } from "@/ui/MadeBy";
 import { UiSounds } from "@/ui/UiSounds";
 import { useWipe, Wipe } from "@/ui/Wipe";
 
 /**
- * The opening themes. One is chosen at random per visit, so the booth is not
- * playing the same track to everyone who walks up across twelve hours.
+ * The opening themes, per language. One is chosen at random per visit, so the
+ * booth is not playing the same track to everyone across twelve hours.
+ *
+ * Indexed rather than picked per language: switching to Spanish plays the
+ * Spanish cut of the track already going, not a different song.
  */
-const MENU_THEMES = ["/music/triangles2.mp3", "/music/triangles2.2.mp3"];
+const MENU_THEMES: Record<Locale, string[]> = {
+	en: ["/music/triangles2.mp3", "/music/triangles2.2.mp3"],
+	es: ["/music/triangles2.esp.mp3", "/music/triangles2.2.esp.mp3"],
+};
 
 type Phase =
 	| { name: "loading" }
@@ -42,7 +51,8 @@ type Phase =
 export default function Home() {
 	const [library, setLibrary] = useState<BeatmapEntry[]>([]);
 	const [phase, setPhase] = useState<Phase>({ name: "loading" });
-	const [themeUrl, setThemeUrl] = useState<string | null>(null);
+	const [themeIndex, setThemeIndex] = useState<number | null>(null);
+	const { t, current: language } = useStrings();
 	const { wipeLabel, wipeTo } = useWipe();
 
 	useEffect(() => {
@@ -60,8 +70,10 @@ export default function Home() {
 	// Rolled after mount: choosing during render would differ between the server
 	// pass and the client one and trip hydration.
 	useEffect(() => {
-		setThemeUrl(MENU_THEMES[Math.floor(Math.random() * MENU_THEMES.length)]);
+		setThemeIndex(Math.floor(Math.random() * MENU_THEMES.en.length));
 	}, []);
+
+	const themeUrl = themeIndex === null ? null : MENU_THEMES[language][themeIndex];
 
 	useEffect(() => () => disposeMenuMusic(), []);
 
@@ -118,10 +130,10 @@ export default function Home() {
 					entry={phase.entry}
 					tier={phase.tier}
 					onEnd={(result) =>
-						wipeTo("RESULTS", () => setPhase({ name: "results", entry: phase.entry, result }))
+						wipeTo(t.wipeResults, () => setPhase({ name: "results", entry: phase.entry, result }))
 					}
 					onQuit={() =>
-						wipeTo("LIST", () => setPhase({ name: "song", entry: phase.entry, tier: phase.tier }))
+						wipeTo(t.wipeList, () => setPhase({ name: "song", entry: phase.entry, tier: phase.tier }))
 					}
 					onError={(message) => setPhase({ name: "error", message })}
 				/>
@@ -160,7 +172,7 @@ export default function Home() {
 				/>
 
 				{phase.name === "loading" && (
-					<p className="mt-10 cursor text-[color:var(--text-dim)]">LOADING BEATMAPS... </p>
+					<p className="mt-10 cursor text-[color:var(--text-dim)]">{t.loadingBeatmaps}{" "}</p>
 				)}
 
 				{phase.name === "error" && (
@@ -200,7 +212,7 @@ export default function Home() {
 						tier={phase.tier}
 						onTier={(tier) => setPhase({ name: "song", entry: phase.entry, tier })}
 						onPlay={() =>
-							wipeTo("LOADING", () =>
+							wipeTo(t.wipeLoading, () =>
 								setPhase({ name: "playing", entry: phase.entry, tier: phase.tier }),
 							)
 						}
@@ -213,7 +225,7 @@ export default function Home() {
 						result={phase.result}
 						entry={phase.entry}
 						onAgain={() =>
-							wipeTo("LOADING", () =>
+							wipeTo(t.wipeLoading, () =>
 								setPhase({
 									name: "playing",
 									entry: phase.entry,
@@ -235,9 +247,11 @@ export default function Home() {
 }
 
 function Header({ compact }: { compact: boolean }) {
+	const { t } = useStrings();
+
 	return (
 		<header className="border-[color:var(--border)] border-b pb-6">
-			<p className="section-label">The Next Craft &middot; Arcade</p>
+			<p className="section-label">{t.arcade}</p>
 			<h1
 				className={`pixel-heading mt-3 ${compact ? "text-2xl sm:text-3xl" : "text-3xl sm:text-5xl"}`}
 			>
@@ -248,6 +262,8 @@ function Header({ compact }: { compact: boolean }) {
 }
 
 function StartScreen({ onStart }: { onStart: () => void }) {
+	const { t } = useStrings();
+
 	return (
 		<section className="mt-16 flex flex-col items-center gap-6">
 			<button
@@ -255,53 +271,61 @@ function StartScreen({ onStart }: { onStart: () => void }) {
 				onClick={onStart}
 				className="keycap px-16 py-6 font-semibold text-2xl"
 			>
-				<ShakyText>START</ShakyText>
+				<ShakyText>{t.start}</ShakyText>
 			</button>
-			<p className="section-label text-[color:var(--text-dim)]">Press to begin &middot; sound on</p>
+			<p className="section-label text-[color:var(--text-dim)]">{t.pressToBegin}</p>
+			<LanguageToggle />
 			<MadeBy className="mt-2" />
 		</section>
 	);
 }
 
 function TitleScreen({ onPlay, onSettings }: { onPlay: () => void; onSettings: () => void }) {
+	const { t } = useStrings();
+
 	return (
 		<section>
 			<p className="rise text-[color:var(--text-dim)] text-sm">10 RUN</p>
 
 			<div className="rise rise-1 mt-6 flex w-full max-w-xs flex-col gap-3">
 				<button type="button" onClick={onPlay} className="keycap py-4 font-semibold text-lg">
-					<ShakyText>PLAY</ShakyText>
+					<ShakyText>{t.play}</ShakyText>
 				</button>
 				<button type="button" onClick={onSettings} className="keycap-ghost py-4">
-					<ShakyText>SETTINGS</ShakyText>
+					<ShakyText>{t.settings}</ShakyText>
 				</button>
 				<Link href="/leaderboard" className="keycap-ghost py-4 text-center">
-					<ShakyText>HIGH SCORES</ShakyText>
+					<ShakyText>{t.highScores.toUpperCase()}</ShakyText>
 				</Link>
 			</div>
 
-			<p className="rise rise-2 section-label mt-10">
-				Arrows or A/D to move &middot; Shift or Space to dash &middot; Mouse to aim
-			</p>
+			<LanguageToggle className="rise rise-2 mt-6" />
+
+			<p className="rise rise-2 section-label mt-8">{t.controls}</p>
 		</section>
 	);
 }
 
 function SettingsScreen({ onBack }: { onBack: () => void }) {
+	const { t } = useStrings();
+
 	return (
 		<section className="mt-10">
-			<p className="rise section-label">Settings</p>
+			<p className="rise section-label">{t.settings}</p>
 
 			<div className="rise rise-1 mt-6 max-w-md">
 				<SoundControls preview />
 			</div>
 
-			<p className="rise rise-2 mt-6 text-[color:var(--text-dim)] text-xs">
-				Levels are stored on this device only. ESC opens them mid-run too.
-			</p>
+			<div className="rise rise-1 mt-6">
+				<p className="section-label">{t.language}</p>
+				<LanguageToggle className="mt-3" />
+			</div>
+
+			<p className="rise rise-2 mt-6 text-[color:var(--text-dim)] text-xs">{t.levelsOnDevice}</p>
 
 			<button type="button" onClick={onBack} className="keycap-ghost mt-8 px-5 py-2.5">
-				BACK
+				{t.back}
 			</button>
 		</section>
 	);
@@ -316,6 +340,8 @@ function SongList({
 	onSelect: (entry: BeatmapEntry) => void;
 	onBack: () => void;
 }) {
+	const { t } = useStrings();
+
 	return (
 		<section className="flex min-h-0 flex-1 flex-col">
 			<p className="rise text-[color:var(--text-dim)] text-sm">20 LOAD &quot;BEATMAP&quot;,8,1</p>
@@ -337,7 +363,7 @@ function SongList({
 									<h2 className="pixel-heading text-base sm:text-lg">{entry.title}</h2>
 									{entry.tournament && (
 										<span className="rounded bg-[color:var(--bone)] px-2 py-0.5 font-semibold text-[10px] text-[color:var(--void)] tracking-[0.12em]">
-											FEATURED
+											{t.featured}
 										</span>
 									)}
 								</div>
@@ -349,7 +375,7 @@ function SongList({
 			</div>
 
 			<button type="button" onClick={onBack} className="keycap-ghost mt-5 self-start px-5 py-2.5">
-				BACK
+				{t.back}
 			</button>
 		</section>
 	);
@@ -374,6 +400,7 @@ function SongDetail({
 	onPlay: () => void;
 	onBack: () => void;
 }) {
+	const { t } = useStrings();
 	const [scores, setScores] = useState<ScoreEntry[] | null>(null);
 
 	useEffect(() => {
@@ -411,7 +438,7 @@ function SongDetail({
 						aria-pressed={option.tier === tier}
 						className={`${option.tier === tier ? "keycap" : "keycap-ghost"} px-4 py-2 text-sm`}
 					>
-						{option.tier}
+						{tierLabel(t, option.tier)}
 						<span
 							className={
 								option.tier === tier ? "ml-2 opacity-60" : "ml-2 text-[color:var(--text-dim)]"
@@ -425,15 +452,17 @@ function SongDetail({
 
 			{difficulty && (
 				<p className="rise rise-1 mt-3 text-[color:var(--text-dim)] text-xs">
-					{difficulty.name} &middot; {difficulty.objectCount} objects &middot; AR
+					{difficulty.name} &middot; {difficulty.objectCount} {t.objects} &middot; AR
 					{difficulty.approachRate}
 				</p>
 			)}
 
 			<div className="rise rise-2 mt-6 flex min-h-0 flex-1 flex-col">
-				<p className="section-label">High scores &mdash; {tier}</p>
+				<p className="section-label">
+					{t.highScores} &mdash; {tierLabel(t, tier)}
+				</p>
 				{scores === null ? (
-					<p className="mt-4 cursor text-[color:var(--text-dim)] text-sm">LOADING BOARD... </p>
+					<p className="mt-4 cursor text-[color:var(--text-dim)] text-sm">{t.loadingBoard} </p>
 				) : (
 					<div className="gallery-mask gallery-scroll min-h-0 flex-1 overflow-y-auto pr-2">
 						<Board scores={scores} />
@@ -443,10 +472,10 @@ function SongDetail({
 
 			<div className="rise rise-3 mt-5 flex flex-wrap gap-3">
 				<button type="button" onClick={onPlay} className="keycap px-8 py-3 font-semibold">
-					PLAY
+					{t.play}
 				</button>
 				<button type="button" onClick={onBack} className="keycap-ghost px-5 py-3">
-					BACK
+					{t.back}
 				</button>
 			</div>
 		</section>
@@ -469,6 +498,7 @@ function Results({
 	onAgain: () => void;
 	onSong: () => void;
 }) {
+	const { t } = useStrings();
 	const { isSignedIn, user } = useUser();
 	const [saved, setSaved] = useState<{ name: string; queued: boolean } | null>(null);
 	const [board, setBoard] = useState<ScoreEntry[] | null>(null);
@@ -486,20 +516,12 @@ function Results({
 		void refreshBoard();
 	}, [refreshBoard]);
 
-	// A signed-in run saves itself. The ref guards against the effect re-running
-	// and submitting the same result twice.
-	useEffect(() => {
-		if (!isSignedIn || autoSaved.current) return;
-		autoSaved.current = true;
-		void save(user?.primaryEmailAddress?.emailAddress ?? "PLAYER");
-	});
-
 	const rows: Array<[string, string]> = [
-		["SCORE", String(result.score).padStart(8, "0")],
-		["ACCURACY", `${(result.accuracy * 100).toFixed(2)}%`],
-		["MAX COMBO", `${result.maxCombo}x`],
-		["CAUGHT", String(result.caught)],
-		["MISSED", String(result.missed)],
+		[t.score, String(result.score).padStart(8, "0")],
+		[t.accuracy, `${(result.accuracy * 100).toFixed(2)}%`],
+		[t.maxCombo, `${result.maxCombo}x`],
+		[t.caught, String(result.caught)],
+		[t.missed, String(result.missed)],
 	];
 
 	async function save(name: string) {
@@ -508,13 +530,21 @@ function Results({
 		await refreshBoard();
 	}
 
+	// A signed-in run saves itself. The ref guards against the effect re-running
+	// and submitting the same result twice.
+	useEffect(() => {
+		if (!isSignedIn || autoSaved.current) return;
+		autoSaved.current = true;
+		void save(user?.primaryEmailAddress?.emailAddress ?? "PLAYER");
+	});
+
 	return (
 		<section className="grid min-h-0 flex-1 gap-8 lg:grid-cols-2">
 			<div className="flex min-h-0 flex-col overflow-y-auto pr-1">
 				<div className="rise">
-					<h2 className="pixel-heading text-2xl">Run complete</h2>
+					<h2 className="pixel-heading text-2xl">{t.runComplete}</h2>
 					<p className="mt-2 text-[color:var(--text-dim)] text-sm">
-						{entry.artist} — {entry.title} [{result.tier}]
+						{entry.artist} — {entry.title} [{tierLabel(t, result.tier)}]
 					</p>
 				</div>
 
@@ -544,30 +574,30 @@ function Results({
 							saved.queued ? "text-[color:var(--destructive)]" : "text-[color:var(--bright)]"
 						}`}
 					>
-						{saved.queued ? "SCORE SAVED LOCALLY — SYNC PENDING" : "SCORE SAVED"}
+						{saved.queued ? t.scoreQueued : t.scoreSaved}
 					</p>
 				)}
 
 				<div className="rise rise-3 mt-6 flex flex-wrap gap-3">
 					<button type="button" onClick={onAgain} className="keycap px-5 py-2.5 font-semibold">
-						RETRY
+						{t.retry}
 					</button>
 					<button type="button" onClick={onSong} className="keycap-ghost px-5 py-2.5">
-						SONG
+						{t.song}
 					</button>
 					<Link href="/leaderboard" className="keycap-ghost px-5 py-2.5">
-						BOARD
+						{t.board}
 					</Link>
 				</div>
 			</div>
 
 			<div className="rise rise-2 flex min-h-0 flex-col">
 				<p className="section-label">
-					{entry.title} &mdash; {result.tier}
+					{entry.title} &mdash; {tierLabel(t, result.tier)}
 				</p>
 				<div className="gallery-mask gallery-scroll min-h-0 flex-1 overflow-y-auto pr-2">
 					{board === null ? (
-						<p className="mt-4 cursor text-[color:var(--text-dim)] text-sm">LOADING BOARD... </p>
+						<p className="mt-4 cursor text-[color:var(--text-dim)] text-sm">{t.loadingBoard} </p>
 					) : (
 						<Board scores={board} highlight={saved?.name} />
 					)}

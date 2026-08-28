@@ -1,6 +1,7 @@
 "use client";
 
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import { useStrings } from "@/i18n/strings";
 
 /**
  * Sign in, or the account you are signed in as.
@@ -14,6 +15,7 @@ import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
  * follows you between visits and keeps your best on each song.
  */
 export function AuthControls() {
+	const { t } = useStrings();
 	const { isLoaded, isSignedIn } = useUser();
 
 	// Render nothing until Clerk resolves, or the control flips on hydration.
@@ -35,7 +37,7 @@ export function AuthControls() {
 	return (
 		<SignInButton mode="modal">
 			<button type="button" className="keycap-ghost px-4 py-1.5 text-xs">
-				SIGN IN
+				{t.signIn}
 			</button>
 		</SignInButton>
 	);

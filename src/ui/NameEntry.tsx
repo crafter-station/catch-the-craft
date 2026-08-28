@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useStrings } from "@/i18n/strings";
 import { MAX_NAME_LENGTH, NAME_PATTERN } from "@/scores/repository";
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
  * initials, which is what people actually want to see next to their score.
  */
 export function NameEntry({ onSubmit }: Props) {
+	const { t } = useStrings();
 	const [name, setName] = useState("");
 	const inputRef = useRef<HTMLInputElement>(null);
 
@@ -34,7 +36,7 @@ export function NameEntry({ onSubmit }: Props) {
 			}}
 		>
 			<label htmlFor="player-name" className="section-label block">
-				Enter name
+				{t.enterName}
 			</label>
 
 			<div className="mt-3 flex flex-wrap items-center gap-3">
@@ -63,7 +65,7 @@ export function NameEntry({ onSubmit }: Props) {
 			</div>
 
 			<button type="submit" disabled={!valid} className="keycap mt-6 px-5 py-2.5 font-semibold">
-				SAVE SCORE
+				{t.saveScore}
 			</button>
 		</form>
 	);

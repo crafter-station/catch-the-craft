@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useStrings } from "@/i18n/strings";
 
 /** How long each badge stays up. */
 const ROTATE_MS = 1500;
@@ -20,6 +21,7 @@ const thumbnail = (id: number) => `/api/participants/${String(id).padStart(3, "0
  * drop out rather than showing a broken frame.
  */
 export function ParticipantCarousel({ className = "" }: { className?: string }) {
+	const { t } = useStrings();
 	const [ids, setIds] = useState<number[]>([]);
 	const [index, setIndex] = useState(0);
 	const [paused, setPaused] = useState(false);
@@ -76,8 +78,8 @@ export function ParticipantCarousel({ className = "" }: { className?: string }) 
 	if (ids.length === 0) {
 		return (
 			<aside className={`hidden lg:block ${className}`} aria-label="Hackathon participants">
-				<p className="section-label">Hackers</p>
-				<p className="mt-4 cursor text-[color:var(--text-dim)] text-xs">LOADING BADGES... </p>
+				<p className="section-label">{t.hackers}</p>
+				<p className="mt-4 cursor text-[color:var(--text-dim)] text-xs">{t.loadingBadges} </p>
 			</aside>
 		);
 	}
@@ -96,7 +98,7 @@ export function ParticipantCarousel({ className = "" }: { className?: string }) 
 			onMouseLeave={() => setPaused(false)}
 		>
 			<div className="flex items-baseline justify-between">
-				<p className="section-label">Hackers</p>
+				<p className="section-label">{t.hackers}</p>
 				<p className="text-[color:var(--text-dim)] text-xs tabular-nums">
 					{String(current).padStart(3, "0")} / {ids.length}
 				</p>
@@ -126,7 +128,7 @@ export function ParticipantCarousel({ className = "" }: { className?: string }) 
 			</div>
 
 			<p className="mt-3 text-[color:var(--text-dim)] text-xs">
-				{paused ? "PAUSED" : "THE NEXT CRAFT ROSTER"}
+				{paused ? t.paused.toUpperCase() : t.roster}
 			</p>
 		</aside>
 	);
