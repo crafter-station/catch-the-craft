@@ -1,6 +1,7 @@
 import type { CatchBeatmap, CatchObject } from "@/osu/toCatch";
 import { PLAYFIELD_WIDTH } from "@/osu/types";
 import { SampleBank } from "./audio/samples";
+import { VoiceBank } from "./audio/voice";
 import {
 	audioSettings,
 	effectsVolume,
@@ -80,6 +81,7 @@ export class GameEngine {
 	private clock: AudioClock | null = null;
 	private context: AudioContext | null = null;
 	private samples: SampleBank | null = null;
+	private voice: VoiceBank | null = null;
 	private frame = 0;
 	private lastFrameMs = 0;
 
@@ -92,6 +94,9 @@ export class GameEngine {
 
 	/** Chart time of the most recent catch, for the plate impact flash. */
 	private lastCatchAtMs = Number.NEGATIVE_INFINITY;
+
+	/** Chart time of the most recent break, for the screen shake. */
+	private lastMissAtMs = Number.NEGATIVE_INFINITY;
 
 	private readonly held = new Set<string>();
 	private inputMode: InputMode = "keyboard";
@@ -119,6 +124,7 @@ export class GameEngine {
 		const settings = audioSettings();
 		this.clock?.setVolume(musicVolume(settings));
 		this.samples?.setVolume(effectsVolume(settings));
+		this.voice?.setVolume(effectsVolume(settings));
 	}
 
 	async start(): Promise<void> {
@@ -126,15 +132,17 @@ export class GameEngine {
 		this.context = new AudioContext();
 		if (this.context.state === "suspended") await this.context.resume();
 
-		const [clock, samples] = await Promise.all([
+		const [clock, samples, voice] = await Promise.all([
 			AudioClock.load(this.options.audioUrl, this.context),
 			SampleBank.load(this.context),
+			VoiceBank.load(this.context),
 			this.renderer.ready(),
 		]);
 
 		this.clock = clock;
 		this.clock.offsetMs = DEFAULT_OFFSET_MS;
 		this.samples = samples;
+		this.voice = voice;
 
 		// Stored levels apply immediately, and keep applying while the run is going
 		// so the pause menu's sliders are audible the moment they move.
@@ -189,6 +197,7 @@ export class GameEngine {
 			snapshot: this.score.snapshot(),
 			progress,
 			catchFlash: Math.max(0, 1 - (chartTime - this.lastCatchAtMs) / 140),
+			missShake: Math.max(0, 1 - (chartTime - this.lastMissAtMs) / MISS_SHAKE_MS),
 		});
 
 		this.effects = this.effects.filter((e) => chartTime - e.bornAtMs < 400);
@@ -226,10 +235,15 @@ export class GameEngine {
 				this.samples?.play(object.kind);
 				if (after.multiplier > before.multiplier) this.samples?.play("comboUp");
 				this.onCaught(object, chartTime, after);
-			} else if (object.kind !== "banana" && before.combo > 0) {
-				// Only an actual break is worth a sound; missing from zero combo is not news.
-				this.samples?.play("comboBreak");
-				this.nextBurstCombo = BURST_MILESTONES[0];
+			} else if (object.kind !== "banana") {
+				// Dropping something shakes the screen whether or not a combo was
+				// running — the jolt is feedback that you missed, not that you lost a streak.
+				this.lastMissAtMs = chartTime;
+				if (before.combo > 0) {
+					// Only an actual break is worth a sound; missing from zero is not news.
+					this.samples?.play("comboBreak");
+					this.nextBurstCombo = BURST_MILESTONES[0];
+				}
 			}
 
 			if (object.kind !== "droplet" || !caught) {
@@ -264,13 +278,18 @@ export class GameEngine {
 
 	/** Cycles sponsors so every one of them gets screen time across a session. */
 	private pushBurst(combo: number, chartTime: number): void {
+		const sponsorIndex = this.burstCount % SPONSORS.length;
+
 		this.bursts.push({
-			sponsorIndex: this.burstCount % SPONSORS.length,
+			sponsorIndex,
 			combo,
 			bornAtMs: chartTime,
 			side: this.burstCount % 2 === 0 ? "right" : "left",
 		});
 		this.burstCount++;
+
+		// The announcer names whichever sponsor the burst is showing.
+		this.voice?.play(SPONSORS[sponsorIndex].slug);
 
 		const next = BURST_MILESTONES.find((m) => m > combo);
 		this.nextBurstCombo = next ?? combo + BURST_INTERVAL;
@@ -400,6 +419,7 @@ export class GameEngine {
 		cancelAnimationFrame(this.frame);
 		this.clock?.dispose();
 		this.samples?.dispose();
+		this.voice?.dispose();
 		void this.context?.close();
 		window.removeEventListener("keydown", this.onKeyDown);
 		window.removeEventListener("keyup", this.onKeyUp);
@@ -410,6 +430,9 @@ export class GameEngine {
 
 /** How long a combo burst stays on screen, in ms. */
 export const BURST_DURATION_MS = 1500;
+
+/** How long the screen keeps shaking after a drop. */
+export const MISS_SHAKE_MS = 260;
 
 const MOVEMENT_KEYS = new Set([
 	"ArrowLeft",

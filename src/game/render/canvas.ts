@@ -29,6 +29,9 @@ const KEY_SHADOW = "#8c8a82";
 const DESTRUCTIVE = "#f87171";
 
 const GRID_SIZE = 46;
+
+/** Peak displacement of the shake, in pixels. */
+const MAX_SHAKE_PX = 9;
 const PIXEL_FONT = '"Silkscreen", ui-monospace, monospace';
 const MONO_FONT = '"IBM Plex Mono", ui-monospace, monospace';
 
@@ -49,6 +52,8 @@ export interface Frame {
 	progress: number;
 	/** 1 immediately after a catch, decaying to 0. Drives the plate impact. */
 	catchFlash: number;
+	/** 1 immediately after a drop, decaying to 0. Drives the screen shake. */
+	missShake: number;
 }
 
 export interface Rect {
@@ -91,8 +96,16 @@ export class CanvasRenderer {
 		const lineY = field.height * CATCHER_LINE;
 		const ctx = this.ctx;
 
+		// Painted before the shake so the displaced playfield never exposes an edge.
 		ctx.fillStyle = VOID;
 		ctx.fillRect(0, 0, width, height);
+
+		ctx.save();
+		if (frame.missShake > 0) {
+			// Squared so the jolt is sharp and settles quickly rather than wobbling out.
+			const amount = frame.missShake ** 2 * MAX_SHAKE_PX;
+			ctx.translate((Math.random() * 2 - 1) * amount, (Math.random() * 2 - 1) * amount);
+		}
 
 		this.drawField(field, lineY);
 
@@ -106,6 +119,9 @@ export class CanvasRenderer {
 		this.drawParticles(frame, field, scale, lineY);
 		this.drawEffects(frame, field, scale, lineY);
 		this.drawCatcher(frame, field, scale, lineY);
+		ctx.restore();
+
+		// Bursts and the HUD stay still — a score that jitters is just hard to read.
 		this.drawBursts(frame, width, height);
 		this.drawHud(frame, width, height);
 	}

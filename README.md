@@ -52,10 +52,11 @@ object a lead-in behind the music, which looks entirely correct on screen and is
 obvious the moment you listen. Measured drift on a real chart is under 20ms.
 
 Catching sprays particles in the sponsor's colour and presses the plate into its
-shadow. At combo milestones a sponsor slides in from the edge, osu!'s combo
+shadow; dropping something jolts the playfield, while the HUD and the bursts stay
+still — a score that jitters is only hard to read. At combo milestones a sponsor slides in from the edge, osu!'s combo
 bursts with logos in place of anime characters; they cycle the roster rather
 than following the fruit, so every sponsor gets airtime regardless of which
-logos happened to spawn.
+logos happened to spawn. An announcer names whichever sponsor is on screen.
 
 ## Look and feel
 
@@ -78,6 +79,11 @@ Gameplay samples in `public/sfx/` and the menu theme in `public/music/` —
 [ppy/osu-resources](https://github.com/ppy/osu-resources), licensed
 **CC BY-NC 4.0**. Fine for a hackathon booth; if this ever becomes commercial,
 they have to be replaced.
+
+The announcer lines in `public/voice/` were generated with OpenAI's
+`gpt-4o-mini-tts`. To regenerate or add one, see `SPONSORS` in
+`src/game/render/tokens.ts` for the roster and `src/game/audio/voice.ts` for the
+slugs the game looks for; the files are plain mp3s named after the slug.
 
 Participant badges are served from
 [thenextcraft.crafter.run](https://thenextcraft.crafter.run).
