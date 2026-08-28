@@ -1,6 +1,6 @@
 export interface ScoreEntry {
-	/** Three-letter arcade initials. */
-	initials: string;
+	/** Player or team name, up to ten characters. */
+	name: string;
 	score: number;
 	maxCombo: number;
 	/** Fraction in 0..1. */
@@ -26,4 +26,11 @@ export interface ScoreRepository {
 	add(entry: ScoreSubmission): Promise<ScoreEntry>;
 }
 
-export const INITIALS_PATTERN = /^[A-Z0-9]{3}$/;
+/**
+  * Uppercase letters, digits, and separators, one to ten characters, starting on
+  * something alphanumeric. Wide enough for a team name and still narrow enough to
+  * line up in a fixed-width board.
+  */
+export const NAME_PATTERN = /^[A-Z0-9][A-Z0-9 _-]{0,9}$/;
+
+export const MAX_NAME_LENGTH = 10;

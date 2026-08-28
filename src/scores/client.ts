@@ -32,12 +32,9 @@ export type SubmitOutcome = "saved" | "queued";
  * player who just set a personal best should never be told their score
  * evaporated. Anything queued is flushed on the next successful submission.
  */
-export async function submitScore(
-	result: RunResult,
-	initials: string,
-): Promise<SubmitOutcome> {
+export async function submitScore(result: RunResult, name: string): Promise<SubmitOutcome> {
 	const submission: ScoreSubmission = {
-		initials: initials.toUpperCase(),
+		name: name.toUpperCase().trim(),
 		score: result.score,
 		maxCombo: result.maxCombo,
 		accuracy: result.accuracy,

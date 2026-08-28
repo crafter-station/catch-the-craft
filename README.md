@@ -108,19 +108,28 @@ song shows **that song's leaderboard for the selected difficulty** before you
 play it: a target read ten seconds before a run is worth more than one read
 after it.
 
-Entering a run and leaving one go through a wipe — a void panel sweeps up, the
-phase swaps while it covers, and it lifts away. Same motion as the-next-craft's
-boot loader. The swap happens *behind* the panel rather than before it, so the
-incoming screen is never caught mid-mount, which matters most on the way into a
-run while the canvas is sizing itself and audio is still decoding. When a run
-ends the canvas holds on its final frame for a beat first, so the run resolves
-visibly instead of the screen changing under the player.
+Entering a run and leaving one cross-fade through a void panel. The phase swaps
+while the panel is fully opaque rather than before it, so the incoming screen is
+never caught mid-mount — which matters most on the way into a run while the
+canvas is sizing itself and audio is still decoding. When a run ends the canvas
+holds on its final frame for a beat first, so the run resolves visibly instead
+of the screen changing under the player.
+
+The menus play music the way osu! song select does: the selected beatmap from
+that chart's own `PreviewTime`, looping back to the preview point rather than
+the top of the track, and following your selection as you move through the list.
+osu!'s actual menu theme is not part of the open-source resources, and this
+needs no extra track licensed and shipped to make the menus feel alive. It waits
+for the first click or keypress, because browsers refuse audio before one.
 
 ## Leaderboard
 
 Every song and difficulty keeps its own board, shown on the song screen.
 `/leaderboard` is a standalone full-screen board for a second monitor, pinned to
 the featured map's EASY difficulty.
+
+Names are up to ten characters — letters, digits, spaces and dashes — so a team
+can put its own name up rather than three initials.
 
 Storage sits behind `ScoreRepository`: a JSON file in development, Postgres when
 `DATABASE_URL` is set. Submissions that fail are queued in `localStorage` and

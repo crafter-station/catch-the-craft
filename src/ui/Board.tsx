@@ -19,38 +19,46 @@ export function Board({ scores, highlight, size = "compact" }: Props) {
 	return (
 		<ol className="mt-6">
 			{scores.map((entry, index) => {
-				const isPlayer = highlight !== undefined && entry.initials === highlight;
+				const isPlayer = highlight !== undefined && entry.name === highlight;
 				return (
 					<li
-						key={`${entry.initials}-${entry.createdAt}`}
+						key={`${entry.name}-${entry.createdAt}`}
 						className={`flex items-baseline gap-4 border-[color:var(--border)] border-b py-3 ${
 							isPlayer ? "bg-[color:var(--screen-dim)]" : ""
 						}`}
 					>
 						<span
-							className={`w-10 text-[color:var(--text-dim)] tabular-nums ${display ? "text-lg" : "text-sm"}`}
+							className={`w-10 shrink-0 text-[color:var(--text-dim)] tabular-nums ${
+								display ? "text-lg" : "text-sm"
+							}`}
 						>
 							{String(index + 1).padStart(2, "0")}
 						</span>
+
+						{/* Ten characters of Silkscreen need real room; the column is fixed so
+						    every row still lines up regardless of name length. */}
 						<span
-							className={`w-24 font-[family-name:var(--font-pixel)] font-bold ${
-								display ? "text-3xl" : "text-lg"
+							className={`min-w-0 flex-1 truncate font-[family-name:var(--font-pixel)] font-bold ${
+								display ? "text-2xl" : "text-base"
 							} ${isPlayer ? "text-[color:var(--bright)]" : "text-[color:var(--text)]"}`}
 						>
-							{entry.initials}
+							{entry.name}
 						</span>
-						<span className={`flex-1 tabular-nums ${display ? "text-2xl" : "text-base"}`}>
+
+						<span
+							className={`shrink-0 tabular-nums ${display ? "text-2xl" : "text-base"}`}
+						>
 							{String(entry.score).padStart(8, "0")}
 						</span>
 						<span
-							className={`w-24 text-right text-[color:var(--text-dim)] tabular-nums ${
+							className={`w-20 shrink-0 text-right text-[color:var(--text-dim)] tabular-nums ${
 								display ? "text-xl" : "text-sm"
 							}`}
 						>
 							{(entry.accuracy * 100).toFixed(1)}%
 						</span>
 						<span
-							className={`w-20 text-right text-[color:var(--text-dim)] tabular-nums ${
+							className={`w-16 shrink-0 text-right text-[color:var(--text-dim)] tabular-nums ${
 								display ? "text-xl" : "text-sm"
 							}`}
 						>

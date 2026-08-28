@@ -57,6 +57,7 @@ for (const entry of CATALOGUE) {
 
   const difficulties = [];
   let audioFilename = "";
+  let previewMs = 0;
   let title = "";
   let artist = "";
 
@@ -80,6 +81,8 @@ for (const entry of CATALOGUE) {
     writeFileSync(join(outputDir, file), bytes);
 
     audioFilename = parsed.general.audioFilename;
+    // osu! plays the track from here in song select; the menus do the same.
+    previewMs = parsed.general.previewTime > 0 ? parsed.general.previewTime : 0;
     title = parsed.metadata.title;
     artist = parsed.metadata.artist;
 
@@ -110,6 +113,7 @@ for (const entry of CATALOGUE) {
     audio: `/beatmaps/${entry.slug}/audio.mp3`,
     startMs: entry.startMs,
     durationMs: entry.durationMs,
+    previewMs,
     tournament: entry.tournament,
     difficulties,
   });

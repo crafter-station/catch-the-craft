@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { disposeMenuMusic, playMenuTrack, stopMenuTrack } from "@/game/audio/menu-music";
 import type { RunResult } from "@/game/engine";
 import { type BeatmapEntry, loadManifest, type Tier } from "@/game/library";
 import { fetchBoard, flushPending, submitScore } from "@/scores/client";
 import type { ScoreEntry } from "@/scores/repository";
 import { Board } from "@/ui/Board";
 import { GameCanvas } from "@/ui/GameCanvas";
-import { InitialsEntry } from "@/ui/InitialsEntry";
+import { NameEntry } from "@/ui/NameEntry";
 import { SoundControls } from "@/ui/SoundControls";
 import { useWipe, Wipe } from "@/ui/Wipe";
 
@@ -25,6 +26,7 @@ type Phase =
 export default function Home() {
 	const [library, setLibrary] = useState<BeatmapEntry[]>([]);
 	const [phase, setPhase] = useState<Phase>({ name: "loading" });
+	const [audioUnlocked, setAudioUnlocked] = useState(false);
 	const { wipeLabel, wipeTo } = useWipe();
 
 	useEffect(() => {
@@ -38,6 +40,39 @@ export default function Home() {
 			})
 			.catch((error: Error) => setPhase({ name: "error", message: error.message }));
 	}, []);
+
+	// Browsers refuse audio until the player has interacted, so the menu track
+	// waits for the first click or keypress rather than failing silently.
+	useEffect(() => {
+		const unlock = () => setAudioUnlocked(true);
+		window.addEventListener("pointerdown", unlock, { once: true });
+		window.addEventListener("keydown", unlock, { once: true });
+		return () => {
+			window.removeEventListener("pointerdown", unlock);
+			window.removeEventListener("keydown", unlock);
+		};
+	}, []);
+
+	useEffect(() => () => disposeMenuMusic(), []);
+
+	/**
+	 * Which song the menus are playing. It follows the selection the way osu!'s
+	 * song select does, and goes quiet for a run, which brings its own audio.
+	 */
+	const menuTrack =
+		phase.name === "playing"
+			? null
+			: phase.name === "song" || phase.name === "results"
+				? phase.entry
+				: (library.find((entry) => entry.tournament) ?? library[0] ?? null);
+
+	useEffect(() => {
+		if (!audioUnlocked || !menuTrack) {
+			stopMenuTrack();
+			return;
+		}
+		void playMenuTrack(menuTrack.audio, menuTrack.previewMs);
+	}, [audioUnlocked, menuTrack]);
 
 	if (phase.name === "playing") {
 		return (
@@ -351,7 +386,7 @@ function Results({
 	onAgain: () => void;
 	onSong: () => void;
 }) {
-	const [saved, setSaved] = useState<{ initials: string; queued: boolean } | null>(null);
+	const [saved, setSaved] = useState<{ name: string; queued: boolean } | null>(null);
 	const [board, setBoard] = useState<ScoreEntry[] | null>(null);
 
 	const rows: Array<[string, string]> = [
@@ -362,9 +397,9 @@ function Results({
 		["MISSED", String(result.missed)],
 	];
 
-	async function save(initials: string) {
-		const outcome = await submitScore(result, initials);
-		setSaved({ initials, queued: outcome === "queued" });
+	async function save(name: string) {
+		const outcome = await submitScore(result, name);
+		setSaved({ name, queued: outcome === "queued" });
 		try {
 			setBoard(await fetchBoard(result.slug, result.tier));
 		} catch {
@@ -397,7 +432,7 @@ function Results({
 
 			{!saved && (
 				<div className="rise rise-2">
-					<InitialsEntry onSubmit={save} />
+					<NameEntry onSubmit={save} />
 				</div>
 			)}
 
@@ -410,7 +445,7 @@ function Results({
 					>
 						{saved.queued ? "SCORE SAVED LOCALLY — SYNC PENDING" : "SCORE SAVED"}
 					</p>
-					{board && <Board scores={board} highlight={saved.initials} />}
+					{board && <Board scores={board} highlight={saved.name} />}
 				</div>
 			)}
 

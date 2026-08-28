@@ -7,6 +7,7 @@
     "audio": "/beatmaps/attitude/audio.mp3",
     "startMs": 0,
     "durationMs": 90000,
+    "previewMs": 74788,
     "tournament": true,
     "difficulties": [
       {
@@ -46,6 +47,7 @@
     "audio": "/beatmaps/kimi-no-shiranai-monogatari/audio.mp3",
     "startMs": 0,
     "durationMs": 90000,
+    "previewMs": 54475,
     "tournament": false,
     "difficulties": [
       {
@@ -85,6 +87,7 @@
     "audio": "/beatmaps/what-ive-done/audio.mp3",
     "startMs": 30000,
     "durationMs": 90000,
+    "previewMs": 64991,
     "tournament": false,
     "difficulties": [
       {
@@ -124,6 +127,7 @@
     "audio": "/beatmaps/sugary-daydream/audio.mp3",
     "startMs": 25000,
     "durationMs": 90000,
+    "previewMs": 32512,
     "tournament": false,
     "difficulties": [
       {

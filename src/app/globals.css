@@ -253,22 +253,21 @@
 /* ─── Screen transitions ────────────────────────────────────────── */
 
 /*
- * A void panel sweeps up through the screen; the phase behind it swaps while it
- * is covering. Same motion as the-next-craft's boot loader, which lifts itself
- * off the page with `--ease-in-out-strong`.
+ * A void panel fades over the screen; the phase behind it swaps while it is
+ * fully opaque, then it fades back out.
  */
 @keyframes wipe-through {
   0% {
-    transform: translateY(100%);
+    opacity: 0;
   }
-  38% {
-    transform: translateY(0);
+  34% {
+    opacity: 1;
   }
-  62% {
-    transform: translateY(0);
+  66% {
+    opacity: 1;
   }
   100% {
-    transform: translateY(-100%);
+    opacity: 0;
   }
 }
 
@@ -280,7 +279,8 @@
   align-items: center;
   justify-content: center;
   background-color: var(--void);
-  animation: wipe-through 1100ms var(--ease-in-out-strong) forwards;
+  opacity: 0;
+  animation: wipe-through 1100ms ease-in-out forwards;
 }
 
 @keyframes wipe-label {
@@ -302,20 +302,18 @@
   animation: wipe-label 1100ms linear forwards;
 }
 
-/* Content easing in behind the wipe, or on a plain screen change. */
+/* Content fading in behind the wipe, or on a plain screen change. */
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(14px);
   }
   to {
     opacity: 1;
-    transform: none;
   }
 }
 
 .rise {
-  animation: rise 520ms var(--ease-out-strong) both;
+  animation: rise 480ms ease-out both;
 }
 
 .rise-1 {

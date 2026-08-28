@@ -1,23 +1,20 @@
-import { audioSettings, effectsVolume } from "./settings";
+import { menuContext } from "./menu-audio";
 import { SampleBank } from "./samples";
+import { audioSettings, effectsVolume } from "./settings";
 
 /**
  * Plays a hitsound so the effects slider can be set before a run starts.
  *
  * Without this the only way to judge the level is to start playing, which is
- * exactly the wrong moment to discover the booth is too quiet. The context is
- * created lazily on the first interaction — a user gesture, so it is allowed to
- * start — and disposed when the menu goes away, so it never overlaps the run's
- * own context.
+ * exactly the wrong moment to discover the booth is too quiet. It rides the
+ * menus' shared context, so adjusting the sliders does not open one of its own.
  */
-let context: AudioContext | null = null;
 let bank: SampleBank | null = null;
 let loading: Promise<void> | null = null;
 
 export async function previewEffects(): Promise<void> {
 	try {
-		context ??= new AudioContext();
-		if (context.state === "suspended") await context.resume();
+		const context = await menuContext();
 
 		loading ??= SampleBank.load(context).then((loaded) => {
 			bank = loaded;
@@ -33,8 +30,6 @@ export async function previewEffects(): Promise<void> {
 
 export function disposePreview(): void {
 	bank?.dispose();
-	void context?.close();
 	bank = null;
-	context = null;
 	loading = null;
 }

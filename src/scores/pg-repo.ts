@@ -24,6 +24,9 @@ export class PostgresScoreRepository implements ScoreRepository {
 		this.ready ??= this.sql`
       CREATE TABLE IF NOT EXISTS scores (
         id          BIGSERIAL PRIMARY KEY,
+        -- Named when scores were three-letter initials. It holds names up to ten
+        -- characters now; renaming it would mean migrating the live board for
+        -- nothing, so the queries below alias it to name instead.
         initials    TEXT        NOT NULL,
         score       INTEGER     NOT NULL,
         max_combo   INTEGER     NOT NULL,
@@ -44,7 +47,7 @@ export class PostgresScoreRepository implements ScoreRepository {
 	async top(slug: string, tier: string, limit: number): Promise<ScoreEntry[]> {
 		await this.ensureSchema();
 		const rows = await this.sql<Row[]>`
-      SELECT initials, score, max_combo, accuracy, slug, tier, created_at
+      SELECT initials AS name, score, max_combo, accuracy, slug, tier, created_at
       FROM scores
       WHERE slug = ${slug} AND tier = ${tier}
       ORDER BY score DESC, created_at ASC
@@ -58,17 +61,17 @@ export class PostgresScoreRepository implements ScoreRepository {
 		const [row] = await this.sql<Row[]>`
       INSERT INTO scores (initials, score, max_combo, accuracy, slug, tier)
       VALUES (
-        ${submission.initials}, ${submission.score}, ${submission.maxCombo},
+        ${submission.name}, ${submission.score}, ${submission.maxCombo},
         ${submission.accuracy}, ${submission.slug}, ${submission.tier}
       )
-      RETURNING initials, score, max_combo, accuracy, slug, tier, created_at
+      RETURNING initials AS name, score, max_combo, accuracy, slug, tier, created_at
     `;
 		return toEntry(row);
 	}
 }
 
 interface Row {
-	initials: string;
+	name: string;
 	score: number;
 	max_combo: number;
 	accuracy: number;
@@ -79,7 +82,7 @@ interface Row {
 
 function toEntry(row: Row): ScoreEntry {
 	return {
-		initials: row.initials,
+		name: row.name,
 		score: row.score,
 		maxCombo: row.max_combo,
 		accuracy: row.accuracy,

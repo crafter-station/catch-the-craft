@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { type NextRequest, NextResponse } from "next/server";
 import type { BeatmapEntry } from "@/game/library";
 import { scoreRepository } from "@/scores";
-import { INITIALS_PATTERN, type ScoreSubmission } from "@/scores/repository";
+import { MAX_NAME_LENGTH, NAME_PATTERN, type ScoreSubmission } from "@/scores/repository";
 
 export const dynamic = "force-dynamic";
 
@@ -70,9 +70,12 @@ async function validate(
 		return { error: "Malformed body" };
 	const input = body as Record<string, unknown>;
 
-	const initials = String(input.initials ?? "").toUpperCase();
-	if (!INITIALS_PATTERN.test(initials)) {
-		return { error: "Initials must be three letters or digits" };
+	const name = String(input.name ?? "")
+		.toUpperCase()
+		.trim()
+		.slice(0, MAX_NAME_LENGTH);
+	if (!NAME_PATTERN.test(name)) {
+		return { error: `Name must be 1-${MAX_NAME_LENGTH} letters, digits, spaces or dashes` };
 	}
 
 	const slug = String(input.slug ?? "");
@@ -102,7 +105,7 @@ async function validate(
 		return { error: "Accuracy must be between 0 and 1" };
 	}
 
-	return { submission: { initials, score, maxCombo, accuracy, slug, tier } };
+	return { submission: { name, score, maxCombo, accuracy, slug, tier } };
 }
 
 let cachedManifest: BeatmapEntry[] | null = null;

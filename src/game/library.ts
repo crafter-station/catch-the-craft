@@ -26,6 +26,8 @@ export interface BeatmapEntry {
 	startMs: number;
 	/** Length of the played window, in ms. */
 	durationMs: number;
+	/** Where the menus start this track from, out of the chart's own PreviewTime. */
+	previewMs: number;
 	/** The one map whose scores go on the shared leaderboard. */
 	tournament: boolean;
 	difficulties: DifficultyEntry[];
