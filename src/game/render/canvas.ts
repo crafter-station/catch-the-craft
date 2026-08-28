@@ -32,6 +32,14 @@ const GRID_SIZE = 46;
 
 /** Peak displacement of the shake, in pixels. */
 const MAX_SHAKE_PX = 9;
+
+/** Turns an object completes over its fall, at the slowest and fastest. */
+const MIN_SPIN_TURNS = 0.35;
+const MAX_SPIN_TURNS = 1.5;
+
+/** How much an object's drawn size may vary from the nominal. Cosmetic only. */
+const MIN_SIZE_SCALE = 0.88;
+const MAX_SIZE_SCALE = 1.14;
 const PIXEL_FONT = '"Silkscreen", ui-monospace, monospace';
 const MONO_FONT = '"IBM Plex Mono", ui-monospace, monospace';
 
@@ -115,7 +123,9 @@ export class CanvasRenderer {
 			const remaining = object.time - frame.chartTimeMs;
 			if (remaining < 0) continue;
 			const y = lineY - (remaining / frame.fallDuration) * lineY;
-			this.drawObject(object, field.x + object.x * scale, y, scale);
+			// 0 the moment it appears, 1 as it reaches the plate.
+			const fallen = 1 - remaining / frame.fallDuration;
+			this.drawObject(object, field.x + object.x * scale, y, scale, fallen);
 		}
 
 		this.drawParticles(frame, field, scale, lineY);
@@ -170,13 +180,39 @@ export class CanvasRenderer {
 		ctx.stroke();
 	}
 
-	private drawObject(object: CatchObject, x: number, y: number, scale: number): void {
+	/**
+	 * Rotation and size are derived from the object's own id rather than rolled
+	 * per frame, so every player sees the same chart spin the same way — the same
+	 * reason banana positions are seeded. Both are purely cosmetic: catching still
+	 * compares the plate against the object's x, so a bigger-looking fruit is not
+	 * an easier one.
+	 */
+	private drawObject(
+		object: CatchObject,
+		x: number,
+		y: number,
+		scale: number,
+		fallen: number,
+	): void {
 		const ctx = this.ctx;
 
+		const spin = hashUnit(object.id);
+		const turns = MIN_SPIN_TURNS + spin * (MAX_SPIN_TURNS - MIN_SPIN_TURNS);
+		const direction = hashUnit(object.id ^ 0x9e3779b9) < 0.5 ? -1 : 1;
+		const angle = direction * turns * fallen * Math.PI * 2;
+		const sizeScale =
+			MIN_SIZE_SCALE + hashUnit(object.id * 2654435761) * (MAX_SIZE_SCALE - MIN_SIZE_SCALE);
+
 		if (object.kind === "fruit") {
-			const size = FRUIT_DIAMETER * scale;
+			const size = FRUIT_DIAMETER * scale * sizeScale;
 			const token = this.atlas?.forCombo(object.comboIndex);
-			if (token) ctx.drawImage(token, x - size / 2, y - size / 2, size, size);
+			if (!token) return;
+
+			ctx.save();
+			ctx.translate(x, y);
+			ctx.rotate(angle);
+			ctx.drawImage(token, -size / 2, -size / 2, size, size);
+			ctx.restore();
 			return;
 		}
 
@@ -190,16 +226,20 @@ export class CanvasRenderer {
 
 		// Banana: a hollow diamond. Distinct from a filled droplet at a glance, so a
 		// bonus object never reads as something you are being punished for missing.
-		const r = BANANA_RADIUS * scale;
+		const r = BANANA_RADIUS * scale * sizeScale;
+		ctx.save();
+		ctx.translate(x, y);
+		ctx.rotate(angle);
 		ctx.strokeStyle = BRIGHT;
 		ctx.lineWidth = Math.max(1.5, 2 * scale);
 		ctx.beginPath();
-		ctx.moveTo(x, y - r);
-		ctx.lineTo(x + r, y);
-		ctx.lineTo(x, y + r);
-		ctx.lineTo(x - r, y);
+		ctx.moveTo(0, -r);
+		ctx.lineTo(r, 0);
+		ctx.lineTo(0, r);
+		ctx.lineTo(-r, 0);
 		ctx.closePath();
 		ctx.stroke();
+		ctx.restore();
 	}
 
 	/** Particles carry playfield coordinates; only this converts them to pixels. */
@@ -420,4 +460,12 @@ export class CanvasRenderer {
 
 function easeOut(t: number): number {
 	return 1 - (1 - t) ** 3;
+}
+
+/** Stable 0..1 from an integer. Same object, same look, every run. */
+function hashUnit(seed: number): number {
+	let t = (seed + 0x6d2b79f5) >>> 0;
+	t = Math.imul(t ^ (t >>> 15), t | 1);
+	t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+	return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 }
