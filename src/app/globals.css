@@ -428,3 +428,61 @@
  * only moved when pointed at — and a permanently shaking title is the asked-for
  * behaviour here, not an incidental flourish. The amplitude is around a pixel.
  */
+
+/* ─── Cursor ────────────────────────────────────────────────────── */
+
+/*
+ * A blocky arrow on the same pixel register as the Silkscreen headings, rather
+ * than the host OS pointer. The pointer variant inverts fill and outline, so
+ * hovering something interactive is a visible state change.
+ */
+html {
+  cursor: url("/cursor/arrow.svg") 0 0, auto;
+}
+
+a,
+button,
+label,
+summary,
+[role="button"],
+input[type="range"] {
+  cursor: url("/cursor/pointer.svg") 0 0, pointer;
+}
+
+/* The plate already tracks the pointer; a cursor on top of it is just clutter. */
+canvas {
+  cursor: none;
+}
+
+/* ─── Shaky boxes ───────────────────────────────────────────────── */
+
+/* The same motion as the letters, for elements that are not text. */
+.shaky-box {
+  animation: letter-shake 900ms ease-in-out infinite;
+  will-change: transform;
+}
+
+.shaky-box:hover {
+  animation-name: letter-jitter;
+  animation-duration: 320ms;
+}
+
+/* ─── Sponsor strip ─────────────────────────────────────────────── */
+
+/*
+ * Logos arrive in whatever colours their brands use, several of them black on
+ * transparent, which would vanish here. Knocking them all to a flat light mark
+ * keeps the strip legible and monochrome; hovering restores the real brand.
+ */
+.sponsor-mark {
+  filter: brightness(0) invert(1);
+  opacity: 0.45;
+  transition:
+    opacity 200ms ease,
+    filter 200ms ease;
+}
+
+.sponsor-mark:hover {
+  filter: none;
+  opacity: 1;
+}

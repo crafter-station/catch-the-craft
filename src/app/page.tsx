@@ -9,10 +9,12 @@ import { type BeatmapEntry, loadManifest, type Tier } from "@/game/library";
 import { fetchBoard, flushPending, submitScore } from "@/scores/client";
 import type { ScoreEntry } from "@/scores/repository";
 import { Board } from "@/ui/Board";
+import { BrandBar } from "@/ui/BrandBar";
 import { GameCanvas } from "@/ui/GameCanvas";
 import { NameEntry } from "@/ui/NameEntry";
 import { ParticipantCarousel } from "@/ui/ParticipantCarousel";
 import { ShakyText } from "@/ui/ShakyText";
+import { SponsorStrip } from "@/ui/SponsorStrip";
 import { SoundControls } from "@/ui/SoundControls";
 import { useWipe, Wipe } from "@/ui/Wipe";
 
@@ -106,12 +108,14 @@ export default function Home() {
 			<div className="scanlines pointer-events-none fixed inset-0 z-40" aria-hidden="true" />
 
 			<main
-				className={`relative z-10 mx-auto flex flex-col justify-center px-6 ${
+				className={`relative z-10 mx-auto flex flex-col px-6 ${
 					phase.name === "title"
-						? "h-dvh max-w-6xl overflow-hidden py-10"
-						: "min-h-dvh max-w-3xl py-16"
+						? "h-dvh max-w-6xl gap-5 overflow-hidden py-6"
+						: "min-h-dvh max-w-3xl justify-center py-12"
 				}`}
 			>
+				<BrandBar />
+
 				<Header compact={phase.name !== "title" && phase.name !== "loading"} />
 
 				{phase.name === "loading" && (
@@ -126,7 +130,7 @@ export default function Home() {
 				)}
 
 				{phase.name === "title" && (
-					<div className="mt-8 grid min-h-0 gap-10 lg:grid-cols-[minmax(0,1fr)_18rem]">
+					<div className="grid min-h-0 flex-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_17rem]">
 						<TitleScreen
 							onPlay={() => setPhase({ name: "songs" })}
 							onSettings={() => setPhase({ name: "settings" })}
@@ -179,6 +183,7 @@ export default function Home() {
 						}
 					/>
 				)}
+				{phase.name === "title" && <SponsorStrip />}
 			</main>
 
 			{wipeLabel && <Wipe label={wipeLabel} />}
@@ -195,13 +200,6 @@ function Header({ compact }: { compact: boolean }) {
 			>
 				<ShakyText>Catch the Craft</ShakyText>
 			</h1>
-			{!compact && (
-				<p className="mt-4 text-[color:var(--text-dim)] text-sm leading-relaxed">
-					**** THE NEXT CRAFT BASIC V2 ****
-					<br />
-					64K RAM SYSTEM &nbsp;38911 SPONSOR BYTES FREE
-				</p>
-			)}
 		</header>
 	);
 }

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 /** How long each badge stays up. */
-const ROTATE_MS = 900;
+const ROTATE_MS = 1500;
 
 /** Simultaneous prefetches. Low enough to stay out of the way of gameplay assets. */
 const CONCURRENCY = 4;
@@ -106,7 +106,7 @@ export function ParticipantCarousel() {
 			    so the frame is never empty between them. */}
 			{/* Height-led rather than width-led: the title screen does not scroll, so the
 			    badge has to give way on short viewports instead of pushing past them. */}
-			<div className="relative mx-auto mt-4 aspect-4/5 h-[min(34vh,320px)] overflow-hidden rounded-sm border border-[color:var(--border)]">
+			<div className="shaky-box relative mx-auto mt-4 aspect-4/5 h-[min(32vh,300px)] overflow-hidden rounded-sm border border-[color:var(--border)]">
 				{previous !== current && (
 					<img
 						key={`under-${previous}`}
