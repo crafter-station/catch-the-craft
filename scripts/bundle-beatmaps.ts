@@ -40,6 +40,12 @@ const CATALOGUE: Bundled[] = [
   { setId: 2504028, slug: "black-rover", tournament: false },
   { setId: 2496961, slug: "more-jump-more", tournament: false },
   { setId: 2471999, slug: "hate-the-way-you-love-me", tournament: false },
+  { setId: 978168, slug: "gurenge", tournament: false },
+  { setId: 1284215, slug: "lost-in-paradise", tournament: false },
+  { setId: 1316755, slug: "kaikai-kitan", tournament: false },
+  { setId: 639494, slug: "yoka-yoka-dance", tournament: false },
+  { setId: 2043818, slug: "idol", tournament: false },
+  { setId: 1190741, slug: "platina", tournament: false },
 ];
 
 /** Difficulty names we surface, in ascending order, mapped to our own tiers. */

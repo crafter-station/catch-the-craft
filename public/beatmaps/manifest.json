@@ -358,5 +358,245 @@
         "maxScore": 576000
       }
     ]
+  },
+  {
+    "slug": "gurenge",
+    "setId": 978168,
+    "title": "Gurenge (TV Size)",
+    "artist": "LiSA",
+    "audio": "/beatmaps/gurenge/audio.mp3",
+    "startMs": 0,
+    "durationMs": 89969.22222222222,
+    "previewMs": 60192,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Kukkai's Cup",
+        "circleSize": 2.5,
+        "approachRate": 6,
+        "objectCount": 135,
+        "maxScore": 448800
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Salad",
+        "circleSize": 3,
+        "approachRate": 7,
+        "objectCount": 148,
+        "maxScore": 482200
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Platter",
+        "circleSize": 3.5,
+        "approachRate": 8,
+        "objectCount": 232,
+        "maxScore": 797200
+      }
+    ]
+  },
+  {
+    "slug": "lost-in-paradise",
+    "setId": 1284215,
+    "title": "LOST IN PARADISE feat. AKLO (TV Size)",
+    "artist": "ALI",
+    "audio": "/beatmaps/lost-in-paradise/audio.mp3",
+    "startMs": 0,
+    "durationMs": 89772.70491803279,
+    "previewMs": 39214,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Sya's Cup",
+        "circleSize": 2.5,
+        "approachRate": 5.8,
+        "objectCount": 166,
+        "maxScore": 528800
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Salad",
+        "circleSize": 3,
+        "approachRate": 6.8,
+        "objectCount": 227,
+        "maxScore": 684400
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Platter",
+        "circleSize": 3.5,
+        "approachRate": 7.8,
+        "objectCount": 260,
+        "maxScore": 795800
+      }
+    ]
+  },
+  {
+    "slug": "kaikai-kitan",
+    "setId": 1316755,
+    "title": "Kaikai Kitan (TV Size)",
+    "artist": "Eve",
+    "audio": "/beatmaps/kaikai-kitan/audio.mp3",
+    "startMs": 0,
+    "durationMs": 89247,
+    "previewMs": 48085,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Cup",
+        "circleSize": 2.5,
+        "approachRate": 6,
+        "objectCount": 279,
+        "maxScore": 752800
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Salad",
+        "circleSize": 3,
+        "approachRate": 7,
+        "objectCount": 290,
+        "maxScore": 793600
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Platter",
+        "circleSize": 3.5,
+        "approachRate": 8,
+        "objectCount": 234,
+        "maxScore": 957600
+      }
+    ]
+  },
+  {
+    "slug": "yoka-yoka-dance",
+    "setId": 639494,
+    "title": "Yoka Yoka Dance (TV Size)",
+    "artist": "BATTEN GIRLS",
+    "audio": "/beatmaps/yoka-yoka-dance/audio.mp3",
+    "startMs": 0,
+    "durationMs": 60927.2722513089,
+    "previewMs": 28141,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "maki's Cup",
+        "circleSize": 2,
+        "approachRate": 6,
+        "objectCount": 135,
+        "maxScore": 430200
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Salad",
+        "circleSize": 3,
+        "approachRate": 7,
+        "objectCount": 147,
+        "maxScore": 531600
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "AJamez's Platter",
+        "circleSize": 3.4,
+        "approachRate": 8,
+        "objectCount": 197,
+        "maxScore": 703400
+      }
+    ]
+  },
+  {
+    "slug": "idol",
+    "setId": 2043818,
+    "title": "Idol (TV Size)",
+    "artist": "YOASOBI",
+    "audio": "/beatmaps/idol/audio.mp3",
+    "startMs": 0,
+    "durationMs": 91303.1686746988,
+    "previewMs": 55056,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Cup",
+        "circleSize": 2.5,
+        "approachRate": 6,
+        "objectCount": 187,
+        "maxScore": 646800
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Salad",
+        "circleSize": 3,
+        "approachRate": 7,
+        "objectCount": 245,
+        "maxScore": 860400
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Platter",
+        "circleSize": 3.5,
+        "approachRate": 8,
+        "objectCount": 309,
+        "maxScore": 1162000
+      }
+    ]
+  },
+  {
+    "slug": "platina",
+    "setId": 1190741,
+    "title": "Platina (Cut Ver.)",
+    "artist": "Aoyama Mio (CV: Yuuki Aoi)",
+    "audio": "/beatmaps/platina/audio.mp3",
+    "startMs": 0,
+    "durationMs": 96791,
+    "previewMs": 47834,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Cup",
+        "circleSize": 2.5,
+        "approachRate": 6,
+        "objectCount": 167,
+        "maxScore": 623650
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Stardust Prism's Salad",
+        "circleSize": 3,
+        "approachRate": 7,
+        "objectCount": 218,
+        "maxScore": 713000
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "wonjae's Platter",
+        "circleSize": 3.4,
+        "approachRate": 8,
+        "objectCount": 265,
+        "maxScore": 911250
+      }
+    ]
   }
 ]
