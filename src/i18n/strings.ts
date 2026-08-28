@@ -63,6 +63,9 @@ export interface Strings {
 	wipeLoading: string;
 	wipeResults: string;
 	wipeList: string;
+	desktopOnly: string;
+	desktopBody: string;
+	tapForSound: string;
 	playlist: string;
 	opening: string;
 	auto: string;
@@ -125,6 +128,10 @@ const EN: Strings = {
 	wipeLoading: "LOADING",
 	wipeResults: "RESULTS",
 	wipeList: "LIST",
+	desktopOnly: "Desktop only",
+	desktopBody:
+		"Catch the Craft needs a keyboard and a wider screen. Open catch.crafter.run on a computer to play.",
+	tapForSound: "Tap anywhere for the music",
 	playlist: "Playlist",
 	opening: "Opening",
 	auto: "Auto",
@@ -188,6 +195,10 @@ const ES: Strings = {
 	wipeLoading: "CARGANDO",
 	wipeResults: "RESULTADOS",
 	wipeList: "LISTA",
+	desktopOnly: "Solo en escritorio",
+	desktopBody:
+		"Catch the Craft necesita teclado y una pantalla más ancha. Abre catch.crafter.run en una computadora para jugar.",
+	tapForSound: "Toca en cualquier parte para escuchar la música",
 	playlist: "Lista",
 	opening: "Apertura",
 	auto: "Auto",

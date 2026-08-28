@@ -23,8 +23,10 @@ import { SponsorStrip } from "@/ui/SponsorStrip";
 import { SoundControls } from "@/ui/SoundControls";
 import { LanguageToggle } from "@/ui/LanguageToggle";
 import { MadeBy } from "@/ui/MadeBy";
+import { MobileNotice } from "@/ui/MobileNotice";
 import { MusicPlayer, type PlayerTrack } from "@/ui/MusicPlayer";
 import { UiSounds } from "@/ui/UiSounds";
+import { useIsMobile } from "@/ui/useIsMobile";
 import { useWipe, Wipe } from "@/ui/Wipe";
 
 /**
@@ -57,6 +59,7 @@ export default function Home() {
 	const [pinnedTrack, setPinnedTrack] = useState<PlayerTrack | null>(null);
 	const { t, current: language } = useStrings();
 	const { wipeLabel, wipeTo } = useWipe();
+	const isMobile = useIsMobile();
 
 	useEffect(() => {
 		// Deliver anything the last session could not send before doing anything else.
@@ -133,6 +136,10 @@ export default function Home() {
 		void menuContext();
 		setPhase({ name: "title" });
 	}
+
+	// After every hook, so the menu track is still scheduled and playing behind
+	// the notice — someone who scanned the QR at least hears the theme.
+	if (isMobile) return <MobileNotice />;
 
 	if (phase.name === "playing") {
 		return (
