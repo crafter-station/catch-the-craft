@@ -1,6 +1,12 @@
 export interface ScoreEntry {
-	/** Player or team name, up to ten characters. */
+	/** Display name: a typed arcade name, or the signed-in player's email. */
 	name: string;
+	/**
+	 * Clerk user id, when the run was played signed in. Absent for anonymous
+	 * play, which the booth still allows — signing in changes how a score is
+	 * attributed, not whether you can set one.
+	 */
+	userId?: string;
 	score: number;
 	maxCombo: number;
 	/** Fraction in 0..1. */

@@ -1,7 +1,8 @@
 "use client";
 
+import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { prefetchAudio } from "@/game/audio/cache";
 import { menuContext } from "@/game/audio/menu-audio";
 import { disposeMenuMusic, playMenuTrack, stopMenuTrack } from "@/game/audio/menu-music";
@@ -468,8 +469,10 @@ function Results({
 	onAgain: () => void;
 	onSong: () => void;
 }) {
+	const { isSignedIn, user } = useUser();
 	const [saved, setSaved] = useState<{ name: string; queued: boolean } | null>(null);
 	const [board, setBoard] = useState<ScoreEntry[] | null>(null);
+	const autoSaved = useRef(false);
 
 	const refreshBoard = useCallback(async () => {
 		try {
@@ -482,6 +485,14 @@ function Results({
 	useEffect(() => {
 		void refreshBoard();
 	}, [refreshBoard]);
+
+	// A signed-in run saves itself. The ref guards against the effect re-running
+	// and submitting the same result twice.
+	useEffect(() => {
+		if (!isSignedIn || autoSaved.current) return;
+		autoSaved.current = true;
+		void save(user?.primaryEmailAddress?.emailAddress ?? "PLAYER");
+	});
 
 	const rows: Array<[string, string]> = [
 		["SCORE", String(result.score).padStart(8, "0")],
@@ -521,7 +532,7 @@ function Results({
 					))}
 				</dl>
 
-				{!saved && (
+				{!saved && !isSignedIn && (
 					<div className="rise rise-2">
 						<NameEntry onSubmit={save} />
 					</div>

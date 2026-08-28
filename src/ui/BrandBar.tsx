@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AuthControls } from "./AuthControls";
 import { MadeBy } from "./MadeBy";
 
 /** This project's source. */
@@ -34,6 +35,7 @@ export function BrandBar({ className = "" }: { className?: string }) {
 
 			<div className="flex items-center gap-5">
 				<MadeBy className="hidden sm:inline" />
+				<AuthControls />
 
 				<Link
 					href={REPOSITORY}

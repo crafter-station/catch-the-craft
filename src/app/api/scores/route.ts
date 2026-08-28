@@ -1,3 +1,4 @@
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { type NextRequest, NextResponse } from "next/server";
@@ -45,7 +46,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 		return NextResponse.json({ error: "Malformed body" }, { status: 400 });
 	}
 
-	const validation = await validate(body);
+	// Identity comes from the session, never from the request body: a signed-in
+	// score is attributed to the Clerk user id, and the display name is their
+	// email read server-side, so neither can be spoofed by a crafted POST.
+	const { userId } = await auth();
+	const identity = userId
+		? { userId, name: (await currentUser())?.primaryEmailAddress?.emailAddress ?? "PLAYER" }
+		: null;
+
+	const validation = await validate(body, identity);
 	if ("error" in validation) {
 		return NextResponse.json({ error: validation.error }, { status: 400 });
 	}
@@ -65,17 +74,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  */
 async function validate(
 	body: unknown,
+	identity: { userId: string; name: string } | null,
 ): Promise<{ submission: ScoreSubmission } | { error: string }> {
 	if (typeof body !== "object" || body === null)
 		return { error: "Malformed body" };
 	const input = body as Record<string, unknown>;
 
-	const name = String(input.name ?? "")
-		.toUpperCase()
-		.trim()
-		.slice(0, MAX_NAME_LENGTH);
-	if (!NAME_PATTERN.test(name)) {
-		return { error: `Name must be 1-${MAX_NAME_LENGTH} letters, digits, spaces or dashes` };
+	// Signed in: the email stands in for the typed name, and the arcade pattern
+	// does not apply to it. Anonymous: the typed name still has to be one.
+	let name = identity?.name ?? "";
+	if (!identity) {
+		name = String(input.name ?? "")
+			.toUpperCase()
+			.trim()
+			.slice(0, MAX_NAME_LENGTH);
+		if (!NAME_PATTERN.test(name)) {
+			return { error: `Name must be 1-${MAX_NAME_LENGTH} letters, digits, spaces or dashes` };
+		}
 	}
 
 	const slug = String(input.slug ?? "");
@@ -105,7 +120,7 @@ async function validate(
 		return { error: "Accuracy must be between 0 and 1" };
 	}
 
-	return { submission: { name, score, maxCombo, accuracy, slug, tier } };
+	return { submission: { name, userId: identity?.userId, score, maxCombo, accuracy, slug, tier } };
 }
 
 let cachedManifest: BeatmapEntry[] | null = null;

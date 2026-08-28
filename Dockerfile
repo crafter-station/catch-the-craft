@@ -16,6 +16,12 @@ RUN bun install --frozen-lockfile
 FROM node:22-bookworm-slim AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# NEXT_PUBLIC_* is inlined into the client bundle by `next build`, so the
+# publishable key has to exist at build time, not just at runtime.
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN node ./node_modules/next/dist/bin/next build

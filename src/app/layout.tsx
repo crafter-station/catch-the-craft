@@ -1,3 +1,4 @@
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata, Viewport } from "next";
 import { Borel, IBM_Plex_Mono, Silkscreen } from "next/font/google";
 import "./globals.css";
@@ -68,13 +69,44 @@ export const viewport: Viewport = {
 	userScalable: false,
 };
 
+/**
+ * Clerk's components dressed in the same warm black-and-white as everything
+ * else, so signing in does not look like a different product bolted on. The
+ * keycap and panel classes are the app's own, reused rather than re-described.
+ */
+const clerkAppearance = {
+	variables: {
+		colorPrimary: "#e6e3d8",
+		colorBackground: "#161613",
+		colorText: "#f2f0e9",
+		colorTextSecondary: "#a2a096",
+		colorInputBackground: "#1a1a17",
+		colorInputText: "#f2f0e9",
+		colorDanger: "#f87171",
+		borderRadius: "0.5rem",
+		fontFamily: "var(--font-plex-mono), ui-monospace, monospace",
+	},
+	elements: {
+		card: "panel",
+		headerTitle: "pixel-heading text-lg",
+		headerSubtitle: "text-[color:var(--text-dim)]",
+		formButtonPrimary: "keycap font-semibold",
+		socialButtonsBlockButton: "keycap-ghost",
+		footerActionLink: "text-[color:var(--bright)]",
+		formFieldLabel: "section-label",
+	},
+} as const;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<html
 			lang="en"
 			className={`${silkscreen.variable} ${ibmPlexMono.variable} ${borel.variable} h-full antialiased`}
 		>
-			<body>{children}</body>
+			<body>
+				{/* Inside <body>, which is where this SDK requires it. */}
+				<ClerkProvider appearance={clerkAppearance}>{children}</ClerkProvider>
+			</body>
 		</html>
 	);
 }

@@ -35,7 +35,8 @@ export class JsonFileScoreRepository implements ScoreRepository {
 		const grouped = new Map<string, TotalEntry & { accuracySum: number }>();
 
 		for (const entry of await this.read()) {
-			const running = grouped.get(entry.name) ?? {
+			const key = entry.userId ?? entry.name;
+			const running = grouped.get(key) ?? {
 				name: entry.name,
 				score: 0,
 				runs: 0,
@@ -48,7 +49,7 @@ export class JsonFileScoreRepository implements ScoreRepository {
 			running.runs += 1;
 			running.accuracySum += entry.accuracy;
 			running.maxCombo = Math.max(running.maxCombo, entry.maxCombo);
-			grouped.set(entry.name, running);
+			grouped.set(key, running);
 		}
 
 		return [...grouped.values()]
@@ -60,16 +61,37 @@ export class JsonFileScoreRepository implements ScoreRepository {
 			.slice(0, limit);
 	}
 
+	/**
+	 * Anonymous runs are appended. A signed-in run replaces that player's entry
+	 * for the chart, but only when it beats it — the board records your best on
+	 * each song, not your latest.
+	 */
 	add(submission: ScoreSubmission): Promise<ScoreEntry> {
 		const run = this.queue.then(async () => {
-			const entry: ScoreEntry = {
-				...submission,
-				createdAt: new Date().toISOString(),
-			};
+			const entry: ScoreEntry = { ...submission, createdAt: new Date().toISOString() };
 			const all = await this.read();
-			all.push(entry);
+
+			if (submission.userId) {
+				const existing = all.findIndex(
+					(other) =>
+						other.userId === submission.userId &&
+						other.slug === submission.slug &&
+						other.tier === submission.tier,
+				);
+
+				if (existing !== -1) {
+					if (all[existing].score >= submission.score) return all[existing];
+					all[existing] = entry;
+				} else {
+					all.push(entry);
+				}
+			} else {
+				all.push(entry);
+			}
+
 			await mkdir(dirname(this.path), { recursive: true });
-			await writeFile(this.path, `${JSON.stringify(all, null, 2)}\n`, "utf8");
+			await writeFile(this.path, `${JSON.stringify(all, null, 2)}
+`, "utf8");
 			return entry;
 		});
 
