@@ -17,23 +17,29 @@ import { toCatchBeatmap } from "../src/osu/toCatch";
 interface Bundled {
   setId: number;
   slug: string;
-  /** Start of the played window, in ms. */
-  startMs: number;
-  /** Length of the played window, in ms. */
-  durationMs: number;
   tournament: boolean;
 }
 
+/**
+ * Padding after the last object, so the progress bar reaches the end and the
+ * final fruit has somewhere to land before the run resolves.
+ */
+const TAIL_MS = 2_000;
+
+/**
+ * Every chart is played in full, from the top. The window is derived from the
+ * chart itself rather than configured, so adding a song is one line.
+ */
 const CATALOGUE: Bundled[] = [
-  { setId: 2573813, slug: "attitude", startMs: 0, durationMs: 90_000, tournament: true },
-  { setId: 2558930, slug: "kimi-no-shiranai-monogatari", startMs: 0, durationMs: 90_000, tournament: false },
-  { setId: 2469870, slug: "what-ive-done", startMs: 30_000, durationMs: 90_000, tournament: false },
-  { setId: 1478481, slug: "sugary-daydream", startMs: 25_000, durationMs: 90_000, tournament: false },
-  { setId: 2572301, slug: "boom-boom-boom-boom", startMs: 0, durationMs: 90_000, tournament: false },
-  { setId: 2377500, slug: "rockefeller-street", startMs: 0, durationMs: 90_000, tournament: false },
-  { setId: 2504028, slug: "black-rover", startMs: 0, durationMs: 90_000, tournament: false },
-  { setId: 2496961, slug: "more-jump-more", startMs: 0, durationMs: 90_000, tournament: false },
-  { setId: 2471999, slug: "hate-the-way-you-love-me", startMs: 0, durationMs: 90_000, tournament: false },
+  { setId: 2573813, slug: "attitude", tournament: true },
+  { setId: 2558930, slug: "kimi-no-shiranai-monogatari", tournament: false },
+  { setId: 2469870, slug: "what-ive-done", tournament: false },
+  { setId: 1478481, slug: "sugary-daydream", tournament: false },
+  { setId: 2572301, slug: "boom-boom-boom-boom", tournament: false },
+  { setId: 2377500, slug: "rockefeller-street", tournament: false },
+  { setId: 2504028, slug: "black-rover", tournament: false },
+  { setId: 2496961, slug: "more-jump-more", tournament: false },
+  { setId: 2471999, slug: "hate-the-way-you-love-me", tournament: false },
 ];
 
 /** Difficulty names we surface, in ascending order, mapped to our own tiers. */
@@ -65,6 +71,8 @@ for (const entry of CATALOGUE) {
   let previewMs = 0;
   let title = "";
   let artist = "";
+  // The longest difficulty decides how far the progress bar has to run.
+  let lastObjectMs = 0;
 
   for (const { tier, matches } of TIERS) {
     const found = Object.entries(archive).find(([name, bytes]) => {
@@ -94,6 +102,8 @@ for (const entry of CATALOGUE) {
     // The score ceiling is computed here, once, so the API can reject anything
     // above it without having to parse charts on every submission.
     const converted = toCatchBeatmap(parsed);
+    const ends = converted.objects.at(-1)?.time ?? 0;
+    lastObjectMs = Math.max(lastObjectMs, ends);
 
     difficulties.push({
       tier,
@@ -102,7 +112,9 @@ for (const entry of CATALOGUE) {
       circleSize: parsed.difficulty.circleSize,
       approachRate: parsed.difficulty.approachRate,
       objectCount: parsed.hitObjects.length,
-      maxScore: maximumScore(converted.objects, entry.startMs, entry.startMs + entry.durationMs),
+      // Over the whole chart, since the whole chart is now played. A ceiling
+      // computed over a shorter window would reject legitimate full-run scores.
+      maxScore: maximumScore(converted.objects, 0, Number.POSITIVE_INFINITY),
     });
   }
 
@@ -116,15 +128,15 @@ for (const entry of CATALOGUE) {
     title,
     artist,
     audio: `/beatmaps/${entry.slug}/audio.mp3`,
-    startMs: entry.startMs,
-    durationMs: entry.durationMs,
+    startMs: 0,
+    durationMs: lastObjectMs + TAIL_MS,
     previewMs,
     tournament: entry.tournament,
     difficulties,
   });
 
   console.log(
-    `✓ ${entry.slug}: ${artist} - ${title} (${difficulties.map((d) => d.tier).join(", ")}, audio ${Math.round(audio.length / 1024)}KB)`,
+    `✓ ${entry.slug}: ${artist} - ${title} (${difficulties.map((d) => d.tier).join(", ")}, ${Math.round((lastObjectMs + TAIL_MS) / 1000)}s, audio ${Math.round(audio.length / 1024)}KB)`,
   );
 }
 

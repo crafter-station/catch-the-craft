@@ -6,7 +6,7 @@
     "artist": "aespa",
     "audio": "/beatmaps/attitude/audio.mp3",
     "startMs": 0,
-    "durationMs": 90000,
+    "durationMs": 90888,
     "previewMs": 74788,
     "tournament": true,
     "difficulties": [
@@ -46,7 +46,7 @@
     "artist": "supercell",
     "audio": "/beatmaps/kimi-no-shiranai-monogatari/audio.mp3",
     "startMs": 0,
-    "durationMs": 90000,
+    "durationMs": 91293,
     "previewMs": 54475,
     "tournament": false,
     "difficulties": [
@@ -85,8 +85,8 @@
     "title": "What I've Done",
     "artist": "Linkin Park",
     "audio": "/beatmaps/what-ive-done/audio.mp3",
-    "startMs": 30000,
-    "durationMs": 90000,
+    "startMs": 0,
+    "durationMs": 202684,
     "previewMs": 64991,
     "tournament": false,
     "difficulties": [
@@ -97,7 +97,7 @@
         "circleSize": 2.5,
         "approachRate": 6,
         "objectCount": 266,
-        "maxScore": 446900
+        "maxScore": 1016850
       },
       {
         "tier": "NORMAL",
@@ -106,7 +106,7 @@
         "circleSize": 3,
         "approachRate": 7,
         "objectCount": 362,
-        "maxScore": 587800
+        "maxScore": 1346850
       },
       {
         "tier": "HARD",
@@ -115,7 +115,7 @@
         "circleSize": 3.5,
         "approachRate": 8,
         "objectCount": 449,
-        "maxScore": 744600
+        "maxScore": 1672850
       }
     ]
   },
@@ -125,8 +125,8 @@
     "title": "Sugary Daydream",
     "artist": "Zekk",
     "audio": "/beatmaps/sugary-daydream/audio.mp3",
-    "startMs": 25000,
-    "durationMs": 90000,
+    "startMs": 0,
+    "durationMs": 158425,
     "previewMs": 32512,
     "tournament": false,
     "difficulties": [
@@ -137,7 +137,7 @@
         "circleSize": 2.5,
         "approachRate": 6.3,
         "objectCount": 384,
-        "maxScore": 778800
+        "maxScore": 1384800
       },
       {
         "tier": "NORMAL",
@@ -146,7 +146,7 @@
         "circleSize": 3,
         "approachRate": 7.3,
         "objectCount": 462,
-        "maxScore": 964800
+        "maxScore": 1701800
       },
       {
         "tier": "HARD",
@@ -155,7 +155,7 @@
         "circleSize": 3.3,
         "approachRate": 8.3,
         "objectCount": 701,
-        "maxScore": 1554200
+        "maxScore": 2645200
       }
     ]
   },
@@ -166,7 +166,7 @@
     "artist": "Vengaboys",
     "audio": "/beatmaps/boom-boom-boom-boom/audio.mp3",
     "startMs": 0,
-    "durationMs": 90000,
+    "durationMs": 67471,
     "previewMs": 30809,
     "tournament": false,
     "difficulties": [
@@ -206,7 +206,7 @@
     "artist": "Getter Jaani",
     "audio": "/beatmaps/rockefeller-street/audio.mp3",
     "startMs": 0,
-    "durationMs": 90000,
+    "durationMs": 154932,
     "previewMs": 41728,
     "tournament": false,
     "difficulties": [
@@ -217,7 +217,7 @@
         "circleSize": 2.5,
         "approachRate": 5.8,
         "objectCount": 275,
-        "maxScore": 507500
+        "maxScore": 955100
       },
       {
         "tier": "NORMAL",
@@ -226,7 +226,7 @@
         "circleSize": 3,
         "approachRate": 6.8,
         "objectCount": 337,
-        "maxScore": 670800
+        "maxScore": 1152800
       },
       {
         "tier": "HARD",
@@ -235,7 +235,7 @@
         "circleSize": 3.5,
         "approachRate": 7.8,
         "objectCount": 765,
-        "maxScore": 1052400
+        "maxScore": 1758000
       }
     ]
   },
@@ -246,7 +246,7 @@
     "artist": "Vickeblanka",
     "audio": "/beatmaps/black-rover/audio.mp3",
     "startMs": 0,
-    "durationMs": 90000,
+    "durationMs": 89079,
     "previewMs": 45733,
     "tournament": false,
     "difficulties": [
@@ -286,7 +286,7 @@
     "artist": "MORE MORE JUMP! x Hatsune Miku",
     "audio": "/beatmaps/more-jump-more/audio.mp3",
     "startMs": 0,
-    "durationMs": 90000,
+    "durationMs": 122972,
     "previewMs": 50390,
     "tournament": false,
     "difficulties": [
@@ -297,7 +297,7 @@
         "circleSize": 2.5,
         "approachRate": 6,
         "objectCount": 277,
-        "maxScore": 703600
+        "maxScore": 953200
       },
       {
         "tier": "NORMAL",
@@ -306,7 +306,7 @@
         "circleSize": 3,
         "approachRate": 7,
         "objectCount": 328,
-        "maxScore": 841200
+        "maxScore": 1162800
       },
       {
         "tier": "HARD",
@@ -315,7 +315,7 @@
         "circleSize": 3.5,
         "approachRate": 8,
         "objectCount": 391,
-        "maxScore": 1132800
+        "maxScore": 1573600
       }
     ]
   },
@@ -326,7 +326,7 @@
     "artist": "renforshort",
     "audio": "/beatmaps/hate-the-way-you-love-me/audio.mp3",
     "startMs": 0,
-    "durationMs": 90000,
+    "durationMs": 66784,
     "previewMs": 35539,
     "tournament": false,
     "difficulties": [

@@ -18,7 +18,7 @@ sponsor logos as fruit, C64-terminal shell, leaderboard on Dokploy.
 | Fidelity | Fruits + juice streams + banana showers. No hyperdash (stretch). |
 | Input | Arrows/A-D + Shift dash · mouse-X mode · touch drag (mobile). |
 | Fail | No-fail always. No HP bar. |
-| Run length | ~90s cut. |
+| Run length | Whole chart, no cut. (Was a ~90s window; removed later.) |
 | Scoring | Arcade tiers 1x/2x/4x/8x at 10/25/50 combo. Accuracy = caught/total. |
 | Audio clock | `AudioContext.currentTime`. Decoded `AudioBuffer`. Hardcoded offset + `[`/`]` nudge. |
 | Aesthetic | C64 terminal shell; playfield stays readable. Light scanlines only. |
@@ -88,7 +88,7 @@ Zekk - Sugary Daydream `1478481` (154s, needs cut).
 **Phase 2 — game feel**
 6. Combo/score/accuracy, miss handling, no-fail.
 7. Sponsor token compositing (dominant-color extraction + disc + logo -> ImageBitmap).
-8. Mouse + touch input. 90s cut enforcement. Offset nudge keys.
+8. Mouse + touch input. Offset nudge keys.
 
 **Phase 3 — shell**
 9. Boot sequence, title/attract, song select, results, 3-letter initials entry.
