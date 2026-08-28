@@ -422,8 +422,9 @@
   border-radius: 3px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .shaky > span {
-    animation: none;
-  }
-}
+/*
+ * Deliberately not suppressed under prefers-reduced-motion. Doing so left the
+ * idle shake off while the higher-specificity hover rule survived, so the title
+ * only moved when pointed at — and a permanently shaking title is the asked-for
+ * behaviour here, not an incidental flourish. The amplitude is around a pixel.
+ */

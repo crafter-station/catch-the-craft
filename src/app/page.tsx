@@ -105,7 +105,13 @@ export default function Home() {
 			<div className="grid-bg" aria-hidden="true" />
 			<div className="scanlines pointer-events-none fixed inset-0 z-40" aria-hidden="true" />
 
-			<main className="relative z-10 mx-auto flex min-h-dvh max-w-3xl flex-col justify-center px-6 py-16">
+			<main
+				className={`relative z-10 mx-auto flex flex-col justify-center px-6 ${
+					phase.name === "title"
+						? "h-dvh max-w-6xl overflow-hidden py-10"
+						: "min-h-dvh max-w-3xl py-16"
+				}`}
+			>
 				<Header compact={phase.name !== "title" && phase.name !== "loading"} />
 
 				{phase.name === "loading" && (
@@ -120,7 +126,7 @@ export default function Home() {
 				)}
 
 				{phase.name === "title" && (
-					<div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_22rem]">
+					<div className="mt-8 grid min-h-0 gap-10 lg:grid-cols-[minmax(0,1fr)_18rem]">
 						<TitleScreen
 							onPlay={() => setPhase({ name: "songs" })}
 							onSettings={() => setPhase({ name: "settings" })}
@@ -207,13 +213,13 @@ function TitleScreen({ onPlay, onSettings }: { onPlay: () => void; onSettings: (
 
 			<div className="rise rise-1 mt-6 flex w-full max-w-xs flex-col gap-3">
 				<button type="button" onClick={onPlay} className="keycap py-4 font-semibold text-lg">
-					PLAY
+					<ShakyText>PLAY</ShakyText>
 				</button>
 				<button type="button" onClick={onSettings} className="keycap-ghost py-4">
-					SETTINGS
+					<ShakyText>SETTINGS</ShakyText>
 				</button>
 				<Link href="/leaderboard" className="keycap-ghost py-4 text-center">
-					HIGH SCORES
+					<ShakyText>HIGH SCORES</ShakyText>
 				</Link>
 			</div>
 

@@ -104,7 +104,9 @@ export function ParticipantCarousel() {
 
 			{/* The outgoing badge stays underneath while the incoming one fades in,
 			    so the frame is never empty between them. */}
-			<div className="relative mt-4 aspect-4/5 w-full overflow-hidden rounded-sm border border-[color:var(--border)]">
+			{/* Height-led rather than width-led: the title screen does not scroll, so the
+			    badge has to give way on short viewports instead of pushing past them. */}
+			<div className="relative mx-auto mt-4 aspect-4/5 h-[min(34vh,320px)] overflow-hidden rounded-sm border border-[color:var(--border)]">
 				{previous !== current && (
 					<img
 						key={`under-${previous}`}
