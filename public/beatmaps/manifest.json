@@ -962,5 +962,245 @@
         "maxScore": 933200
       }
     ]
+  },
+  {
+    "slug": "un-owen-was-yee",
+    "setId": 263191,
+    "title": "U.N. Owen Was Yee?",
+    "artist": "JerryTerry",
+    "audio": "/beatmaps/un-owen-was-yee/audio.mp3",
+    "startMs": 0,
+    "durationMs": 37695,
+    "previewMs": 17113,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Cup",
+        "circleSize": 2.5,
+        "approachRate": 5,
+        "objectCount": 57,
+        "maxScore": 170400
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Salad",
+        "circleSize": 3,
+        "approachRate": 6.5,
+        "objectCount": 85,
+        "maxScore": 211200
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Platter",
+        "circleSize": 3.7,
+        "approachRate": 8,
+        "objectCount": 87,
+        "maxScore": 213600
+      }
+    ]
+  },
+  {
+    "slug": "touhou-hisouten",
+    "setId": 965677,
+    "title": "Touhou Hisouten",
+    "artist": "Akiyama Uni",
+    "audio": "/beatmaps/touhou-hisouten/audio.mp3",
+    "startMs": 0,
+    "durationMs": 86436,
+    "previewMs": 34373,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Cup",
+        "circleSize": 3,
+        "approachRate": 5.5,
+        "objectCount": 146,
+        "maxScore": 518000
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Absolute Zero's Salad",
+        "circleSize": 2.5,
+        "approachRate": 6.9,
+        "objectCount": 113,
+        "maxScore": 507200
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Hexletto's Platter",
+        "circleSize": 3,
+        "approachRate": 8,
+        "objectCount": 260,
+        "maxScore": 914000
+      }
+    ]
+  },
+  {
+    "slug": "day-breaker",
+    "setId": 1499636,
+    "title": "DAY BREAKER",
+    "artist": "A-One feat. Shihori",
+    "audio": "/beatmaps/day-breaker/audio.mp3",
+    "startMs": 0,
+    "durationMs": 223104,
+    "previewMs": 69468,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Cup",
+        "circleSize": 3,
+        "approachRate": 6,
+        "objectCount": 459,
+        "maxScore": 1584450
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Salad",
+        "circleSize": 3.5,
+        "approachRate": 7,
+        "objectCount": 566,
+        "maxScore": 2034250
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Greaper's Platter",
+        "circleSize": 4,
+        "approachRate": 8,
+        "objectCount": 664,
+        "maxScore": 2675250
+      }
+    ]
+  },
+  {
+    "slug": "makudo-wa-taihen",
+    "setId": 2237688,
+    "title": "Makudo wa Taihen na Mono o Tsukutte Ikimashita",
+    "artist": "IOSYS",
+    "audio": "/beatmaps/makudo-wa-taihen/audio.mp3",
+    "startMs": 0,
+    "durationMs": 129460,
+    "previewMs": 90827,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "xornado's Cup",
+        "circleSize": 2.6,
+        "approachRate": 6,
+        "objectCount": 139,
+        "maxScore": 619050
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Collab Salad",
+        "circleSize": 3.2,
+        "approachRate": 7,
+        "objectCount": 160,
+        "maxScore": 809450
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Moeru's Platter",
+        "circleSize": 3.5,
+        "approachRate": 8,
+        "objectCount": 415,
+        "maxScore": 1552600
+      }
+    ]
+  },
+  {
+    "slug": "bad-apple",
+    "setId": 1822411,
+    "title": "Bad Apple!!",
+    "artist": "ZUN",
+    "audio": "/beatmaps/bad-apple/audio.mp3",
+    "startMs": 0,
+    "durationMs": 82655,
+    "previewMs": 20853,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "CUP",
+        "circleSize": 2.5,
+        "approachRate": 5.1,
+        "objectCount": 139,
+        "maxScore": 506000
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "SALAD",
+        "circleSize": 3,
+        "approachRate": 6.2,
+        "objectCount": 162,
+        "maxScore": 594800
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "PLATTER",
+        "circleSize": 3.5,
+        "approachRate": 7.3,
+        "objectCount": 212,
+        "maxScore": 823600
+      }
+    ]
+  },
+  {
+    "slug": "cirno-de-gozaimasu",
+    "setId": 1916305,
+    "title": "Cirno de Gozaimasu!",
+    "artist": "Shimataro",
+    "audio": "/beatmaps/cirno-de-gozaimasu/audio.mp3",
+    "startMs": 0,
+    "durationMs": 55848,
+    "previewMs": 4029,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Cup",
+        "circleSize": 2,
+        "approachRate": 4,
+        "objectCount": 72,
+        "maxScore": 142800
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Salad",
+        "circleSize": 3,
+        "approachRate": 6,
+        "objectCount": 144,
+        "maxScore": 330000
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Platter",
+        "circleSize": 4,
+        "approachRate": 7,
+        "objectCount": 166,
+        "maxScore": 422800
+      }
+    ]
   }
 ]
