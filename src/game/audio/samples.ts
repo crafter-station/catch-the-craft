@@ -17,13 +17,18 @@ const SOURCES: Record<SampleName, string> = {
 	comboUp: "/sfx/normal-hitfinish.wav",
 };
 
-/** Per-sample levels. Droplets fire in dense bursts and have to sit well under fruit. */
+/**
+ * Per-sample levels. Droplets fire in dense bursts and have to sit well under
+ * fruit; the combo sounds are the opposite — they land on a milestone rather
+ * than on every catch, so they are mixed above the per-catch hitsounds to be
+ * heard over a stream of them.
+ */
 const LEVELS: Record<SampleName, number> = {
 	fruit: 0.55,
 	droplet: 0.22,
 	banana: 0.35,
-	comboBreak: 0.5,
-	comboUp: 0.45,
+	comboBreak: 0.85,
+	comboUp: 0.95,
 };
 
 /**

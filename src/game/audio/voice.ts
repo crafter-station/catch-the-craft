@@ -21,10 +21,11 @@ const LINES = [
 export type VoiceLine = (typeof LINES)[number];
 
 /**
- * Announcer sits under the hitsounds: it lands on a milestone, not on every
- * catch, and it should never bury the sound telling you that you caught something.
+ * The announcer is the loudest thing in the mix. It only fires on a milestone,
+ * and the whole point of naming the sponsor is that the room hears it — a line
+ * buried under the hitsounds does not do that.
  */
-const LEVEL = 0.85;
+const LEVEL = 1;
 
 export class VoiceBank {
 	private readonly context: AudioContext;
