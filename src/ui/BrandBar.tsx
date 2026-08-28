@@ -18,8 +18,12 @@ export function BrandBar({
 	className?: string;
 	children?: React.ReactNode;
 }) {
+	// Positioned and lifted deliberately: the reveal animation on this element
+	// gives it a stacking context of its own, which would otherwise trap the
+	// playlist panel's z-index inside it and paint the panel under the screen
+	// content below.
 	return (
-		<div className={`flex items-center justify-between gap-4 ${className}`}>
+		<div className={`relative z-30 flex items-center justify-between gap-4 ${className}`}>
 			<Link
 				href="https://crafterstation.com"
 				target="_blank"
