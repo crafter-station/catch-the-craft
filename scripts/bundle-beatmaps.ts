@@ -46,6 +46,16 @@ const CATALOGUE: Bundled[] = [
   { setId: 639494, slug: "yoka-yoka-dance", tournament: false },
   { setId: 2043818, slug: "idol", tournament: false },
   { setId: 1190741, slug: "platina", tournament: false },
+  { setId: 321999, slug: "last-of-the-wilds", tournament: false },
+  { setId: 1558943, slug: "pokemon-theme", tournament: false },
+  { setId: 549036, slug: "sentou-mew", tournament: false },
+  { setId: 2155969, slug: "touka-city", tournament: false },
+  { setId: 1973407, slug: "pokemon-center", tournament: false },
+  { setId: 1821381, slug: "n-no-dragon", tournament: false },
+  { setId: 442618, slug: "xy-and-z", tournament: false },
+  { setId: 2362134, slug: "starring-star", tournament: false },
+  { setId: 2377706, slug: "telepathy", tournament: false },
+  { setId: 68019, slug: "dragon-soul", tournament: false },
 ];
 
 /** Difficulty names we surface, in ascending order, mapped to our own tiers. */
@@ -54,6 +64,21 @@ const TIERS = [
   { tier: "NORMAL", matches: ["salad"] },
   { tier: "HARD", matches: ["platter"] },
 ] as const;
+
+type Tier = (typeof TIERS)[number]["tier"];
+
+/**
+ * Where a chart belongs when it does not name itself Cup / Salad / Platter.
+ *
+ * Judged on what it actually plays like rather than on which slot happens to be
+ * free: a lone difficulty at CS 6 / AR 9 is a hard chart, and filing it under
+ * EASY because EASY was empty would be a lie to whoever picks it.
+ */
+function inferTier(difficulty: { circleSize: number; approachRate: number }): Tier {
+  if (difficulty.approachRate >= 8 || difficulty.circleSize >= 4) return "HARD";
+  if (difficulty.approachRate >= 7 || difficulty.circleSize >= 3.2) return "NORMAL";
+  return "EASY";
+}
 
 const sourceDir = process.argv[2];
 if (!sourceDir) {
@@ -80,24 +105,39 @@ for (const entry of CATALOGUE) {
   // The longest difficulty decides how far the progress bar has to run.
   let lastObjectMs = 0;
 
-  for (const { tier, matches } of TIERS) {
-    const found = Object.entries(archive).find(([name, bytes]) => {
-      if (!name.toLowerCase().endsWith(".osu")) return false;
-      const parsed = safeParse(bytes);
-      if (!parsed || parsed.general.mode !== 2) return false;
-      // Guest difficulties are named e.g. "Sadu's Salad", so match on substring.
-      return matches.some((m) => parsed.metadata.version.toLowerCase().includes(m));
-    });
+  // Every native catch difficulty in the archive, parsed once.
+  const natives = Object.values(archive)
+    .map((bytes) => ({ bytes, parsed: safeParse(bytes) }))
+    .filter((d) => d.parsed !== null && d.parsed.general.mode === 2);
 
-    if (!found) {
-      console.warn(`  ${entry.slug}: no ${tier} difficulty, skipping tier`);
+  const chosen = new Map<Tier, (typeof natives)[number]>();
+
+  // Preferred: the chart names itself, including guest names like "Sadu's Salad".
+  for (const { tier, matches } of TIERS) {
+    const hit = natives.find((d) =>
+      matches.some((m) => d.parsed?.metadata.version.toLowerCase().includes(m)),
+    );
+    if (hit) chosen.set(tier, hit);
+  }
+
+  // Anything left over is placed by how it plays, filling only empty slots.
+  for (const candidate of natives) {
+    if ([...chosen.values()].includes(candidate)) continue;
+    if (!candidate.parsed) continue;
+    const tier = inferTier(candidate.parsed.difficulty);
+    if (!chosen.has(tier)) chosen.set(tier, candidate);
+  }
+
+  for (const { tier } of TIERS) {
+    const picked = chosen.get(tier);
+    if (!picked) {
+      console.warn(`  ${entry.slug}: no ${tier} difficulty`);
       continue;
     }
 
-    const [, bytes] = found;
-    const parsed = parseOsu(new TextDecoder().decode(bytes));
+    const parsed = parseOsu(new TextDecoder().decode(picked.bytes));
     const file = `${tier.toLowerCase()}.osu`;
-    writeFileSync(join(outputDir, file), bytes);
+    writeFileSync(join(outputDir, file), picked.bytes);
 
     audioFilename = parsed.general.audioFilename;
     // osu! plays the track from here in song select; the menus do the same.
@@ -108,8 +148,7 @@ for (const entry of CATALOGUE) {
     // The score ceiling is computed here, once, so the API can reject anything
     // above it without having to parse charts on every submission.
     const converted = toCatchBeatmap(parsed);
-    const ends = converted.objects.at(-1)?.time ?? 0;
-    lastObjectMs = Math.max(lastObjectMs, ends);
+    lastObjectMs = Math.max(lastObjectMs, converted.objects.at(-1)?.time ?? 0);
 
     difficulties.push({
       tier,

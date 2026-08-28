@@ -598,5 +598,369 @@
         "maxScore": 911250
       }
     ]
+  },
+  {
+    "slug": "last-of-the-wilds",
+    "setId": 321999,
+    "title": "Last Of The Wilds",
+    "artist": "Nightwish",
+    "audio": "/beatmaps/last-of-the-wilds/audio.mp3",
+    "startMs": 0,
+    "durationMs": 128293,
+    "previewMs": 94337,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "AFB's Salad",
+        "circleSize": 3,
+        "approachRate": 6.6,
+        "objectCount": 212,
+        "maxScore": 836800
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Platter",
+        "circleSize": 3.7,
+        "approachRate": 7.6,
+        "objectCount": 244,
+        "maxScore": 921200
+      }
+    ]
+  },
+  {
+    "slug": "pokemon-theme",
+    "setId": 1558943,
+    "title": "Pokemon Theme (TV Size)",
+    "artist": "Jason Paige",
+    "audio": "/beatmaps/pokemon-theme/audio.mp3",
+    "startMs": 0,
+    "durationMs": 64598,
+    "previewMs": 33118,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "zero825's Cup",
+        "circleSize": 2.5,
+        "approachRate": 6,
+        "objectCount": 126,
+        "maxScore": 340450
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "zero825's Salad",
+        "circleSize": 3,
+        "approachRate": 7,
+        "objectCount": 146,
+        "maxScore": 402850
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "zero825's Platter",
+        "circleSize": 3.5,
+        "approachRate": 8,
+        "objectCount": 149,
+        "maxScore": 501250
+      }
+    ]
+  },
+  {
+    "slug": "sentou-mew",
+    "setId": 549036,
+    "title": "Sentou! Mew",
+    "artist": "Junichi Masuda",
+    "audio": "/beatmaps/sentou-mew/audio.mp3",
+    "startMs": 0,
+    "durationMs": 47633,
+    "previewMs": 13802,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Cup",
+        "circleSize": 2,
+        "approachRate": 6,
+        "objectCount": 57,
+        "maxScore": 205650
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Salad",
+        "circleSize": 3,
+        "approachRate": 7,
+        "objectCount": 94,
+        "maxScore": 326800
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Platter",
+        "circleSize": 3.8,
+        "approachRate": 8,
+        "objectCount": 174,
+        "maxScore": 580800
+      }
+    ]
+  },
+  {
+    "slug": "touka-city",
+    "setId": 2155969,
+    "title": "Touka City",
+    "artist": "Morikazu Aoki, Minako Adachi",
+    "audio": "/beatmaps/touka-city/audio.mp3",
+    "startMs": 0,
+    "durationMs": 37982,
+    "previewMs": 0,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Aku's Cup",
+        "circleSize": 2.8,
+        "approachRate": 5,
+        "objectCount": 39,
+        "maxScore": 109000
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Aku's Salad",
+        "circleSize": 3.2,
+        "approachRate": 6,
+        "objectCount": 56,
+        "maxScore": 177600
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Aku's Platter",
+        "circleSize": 3.6,
+        "approachRate": 7,
+        "objectCount": 68,
+        "maxScore": 255000
+      }
+    ]
+  },
+  {
+    "slug": "pokemon-center",
+    "setId": 1973407,
+    "title": "Pokemon Center",
+    "artist": "Masuda Junichi",
+    "audio": "/beatmaps/pokemon-center/audio.mp3",
+    "startMs": 0,
+    "durationMs": 36090,
+    "previewMs": 274,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Collab Cup",
+        "circleSize": 2,
+        "approachRate": 6,
+        "objectCount": 66,
+        "maxScore": 157200
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Salad",
+        "circleSize": 3,
+        "approachRate": 7,
+        "objectCount": 93,
+        "maxScore": 234000
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Rustyy's Platter",
+        "circleSize": 3.5,
+        "approachRate": 7.5,
+        "objectCount": 79,
+        "maxScore": 238800
+      }
+    ]
+  },
+  {
+    "slug": "n-no-dragon",
+    "setId": 1821381,
+    "title": "N no Dragon",
+    "artist": "Shota Kageyama",
+    "audio": "/beatmaps/n-no-dragon/audio.mp3",
+    "startMs": 0,
+    "durationMs": 43866,
+    "previewMs": 23716,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Cup",
+        "circleSize": 2,
+        "approachRate": 6,
+        "objectCount": 56,
+        "maxScore": 185050
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Salad",
+        "circleSize": 3,
+        "approachRate": 7,
+        "objectCount": 97,
+        "maxScore": 286050
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Platter",
+        "circleSize": 3.5,
+        "approachRate": 8,
+        "objectCount": 159,
+        "maxScore": 420000
+      }
+    ]
+  },
+  {
+    "slug": "xy-and-z",
+    "setId": 442618,
+    "title": "XY&Z",
+    "artist": "Satoshi (CV:Matsumoto Rica)",
+    "audio": "/beatmaps/xy-and-z/audio.mp3",
+    "startMs": 0,
+    "durationMs": 89406.66144435613,
+    "previewMs": 44592,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Salad",
+        "circleSize": 3,
+        "approachRate": 7,
+        "objectCount": 172,
+        "maxScore": 701800
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Platter",
+        "circleSize": 3.5,
+        "approachRate": 8,
+        "objectCount": 222,
+        "maxScore": 868400
+      }
+    ]
+  },
+  {
+    "slug": "starring-star",
+    "setId": 2362134,
+    "title": "STARRING STAR (TV Size)",
+    "artist": "KEYTALK",
+    "audio": "/beatmaps/starring-star/audio.mp3",
+    "startMs": 0,
+    "durationMs": 60165,
+    "previewMs": 26110,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Misti's Cup",
+        "circleSize": 2.5,
+        "approachRate": 6,
+        "objectCount": 112,
+        "maxScore": 322400
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Eunie's Salad",
+        "circleSize": 3,
+        "approachRate": 7,
+        "objectCount": 116,
+        "maxScore": 480800
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Jack's Platter",
+        "circleSize": 3.5,
+        "approachRate": 8,
+        "objectCount": 152,
+        "maxScore": 646000
+      }
+    ]
+  },
+  {
+    "slug": "telepathy",
+    "setId": 2377706,
+    "title": "Telepathy feat. Hatsune Miku",
+    "artist": "DECO*27",
+    "audio": "/beatmaps/telepathy/audio.mp3",
+    "startMs": 0,
+    "durationMs": 137355,
+    "previewMs": 97855,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "EASY",
+        "file": "easy.osu",
+        "name": "Natsuko's Cup",
+        "circleSize": 2.5,
+        "approachRate": 6,
+        "objectCount": 217,
+        "maxScore": 815600
+      },
+      {
+        "tier": "NORMAL",
+        "file": "normal.osu",
+        "name": "Dizzy's Salad",
+        "circleSize": 3,
+        "approachRate": 7,
+        "objectCount": 347,
+        "maxScore": 1157600
+      },
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "Rew's Platter",
+        "circleSize": 3.5,
+        "approachRate": 8,
+        "objectCount": 453,
+        "maxScore": 1690600
+      }
+    ]
+  },
+  {
+    "slug": "dragon-soul",
+    "setId": 68019,
+    "title": "Dragon Soul (TV Size)",
+    "artist": "Dragon Ball",
+    "audio": "/beatmaps/dragon-soul/audio.mp3",
+    "startMs": 0,
+    "durationMs": 88013,
+    "previewMs": 0,
+    "tournament": false,
+    "difficulties": [
+      {
+        "tier": "HARD",
+        "file": "hard.osu",
+        "name": "KameHameHA!!!! Catch the Beat",
+        "circleSize": 6,
+        "approachRate": 9,
+        "objectCount": 385,
+        "maxScore": 933200
+      }
+    ]
   }
 ]

@@ -3,8 +3,12 @@ import { parseOsu } from "../src/osu/parse";
 import { toCatchBeatmap, catcherWidthFor, fallDurationFor } from "../src/osu/toCatch";
 
 const manifest = JSON.parse(readFileSync("public/beatmaps/manifest.json", "utf8"));
-for (const slug of manifest.map((entry: { slug: string }) => entry.slug)) {
-  for (const tier of ["easy", "normal", "hard"]) {
+
+// Driven by the manifest rather than assuming three tiers: some sets only ship
+// the difficulties their mappers actually made.
+for (const entry of manifest as Array<{ slug: string; difficulties: Array<{ file: string }> }>) {
+  const slug = entry.slug;
+  for (const tier of entry.difficulties.map((d) => d.file.replace(".osu", ""))) {
     const raw = readFileSync(`public/beatmaps/${slug}/${tier}.osu`, "utf8");
     const map = parseOsu(raw);
     const catch_ = toCatchBeatmap(map);
