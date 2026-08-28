@@ -101,10 +101,26 @@ bun run bundle:beatmaps ./<dir-with-osz>
 The bundler also computes each chart's maximum possible score, which the API uses
 as a ceiling when validating submissions.
 
+## Screens
+
+`Title -> Play | Settings`, then `Songs -> Song -> Run -> Results`. Choosing a
+song shows **that song's leaderboard for the selected difficulty** before you
+play it: a target read ten seconds before a run is worth more than one read
+after it.
+
+Entering a run and leaving one go through a wipe — a void panel sweeps up, the
+phase swaps while it covers, and it lifts away. Same motion as the-next-craft's
+boot loader. The swap happens *behind* the panel rather than before it, so the
+incoming screen is never caught mid-mount, which matters most on the way into a
+run while the canvas is sizing itself and audio is still decoding. When a run
+ends the canvas holds on its final frame for a beat first, so the run resolves
+visibly instead of the screen changing under the player.
+
 ## Leaderboard
 
-One shared board, on the tournament map's EASY difficulty. Everything else is
-free play. `/leaderboard` is a standalone full-screen board for a second monitor.
+Every song and difficulty keeps its own board, shown on the song screen.
+`/leaderboard` is a standalone full-screen board for a second monitor, pinned to
+the featured map's EASY difficulty.
 
 Storage sits behind `ScoreRepository`: a JSON file in development, Postgres when
 `DATABASE_URL` is set. Submissions that fail are queued in `localStorage` and

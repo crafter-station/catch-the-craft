@@ -249,3 +249,92 @@
   box-shadow: 0 0 0 var(--key-shadow);
   transform: translateY(2px);
 }
+
+/* ─── Screen transitions ────────────────────────────────────────── */
+
+/*
+ * A void panel sweeps up through the screen; the phase behind it swaps while it
+ * is covering. Same motion as the-next-craft's boot loader, which lifts itself
+ * off the page with `--ease-in-out-strong`.
+ */
+@keyframes wipe-through {
+  0% {
+    transform: translateY(100%);
+  }
+  38% {
+    transform: translateY(0);
+  }
+  62% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-100%);
+  }
+}
+
+.wipe {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--void);
+  animation: wipe-through 1100ms var(--ease-in-out-strong) forwards;
+}
+
+@keyframes wipe-label {
+  0%,
+  25% {
+    opacity: 0;
+  }
+  40%,
+  60% {
+    opacity: 1;
+  }
+  80%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.wipe-label {
+  animation: wipe-label 1100ms linear forwards;
+}
+
+/* Content easing in behind the wipe, or on a plain screen change. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise {
+  animation: rise 520ms var(--ease-out-strong) both;
+}
+
+.rise-1 {
+  animation-delay: 70ms;
+}
+
+.rise-2 {
+  animation-delay: 140ms;
+}
+
+.rise-3 {
+  animation-delay: 210ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wipe,
+  .wipe-label,
+  .rise {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+}

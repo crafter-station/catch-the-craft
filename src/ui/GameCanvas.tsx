@@ -6,6 +6,13 @@ import type { BeatmapEntry, Tier } from "@/game/library";
 import { loadChart } from "@/game/library";
 import { PauseMenu } from "./PauseMenu";
 
+/**
+ * Beat between the last object and the results screen. The canvas is frozen on
+ * its final frame through this, so a run resolves visibly instead of the screen
+ * changing under the player the instant they catch the last fruit.
+ */
+const HOLD_AFTER_RUN_MS = 1200;
+
 interface Props {
 	entry: BeatmapEntry;
 	tier: Tier;
@@ -17,6 +24,7 @@ interface Props {
 export function GameCanvas({ entry, tier, onEnd, onQuit, onError }: Props) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const engineRef = useRef<GameEngine | null>(null);
+	const holdTimer = useRef<number | null>(null);
 	const [paused, setPaused] = useState(false);
 
 	// Bumping this tears the engine down and builds a fresh one, which is all a
@@ -49,7 +57,12 @@ export function GameCanvas({ entry, tier, onEnd, onQuit, onError }: Props) {
 					tier,
 					startMs: entry.startMs,
 					durationMs: entry.durationMs,
-					onEnd: (result) => endRef.current(result),
+					onEnd: (result) => {
+						holdTimer.current = window.setTimeout(
+							() => endRef.current(result),
+							HOLD_AFTER_RUN_MS,
+						);
+					},
 					onPauseChange: setPaused,
 				});
 				engineRef.current = engine;
@@ -63,6 +76,7 @@ export function GameCanvas({ entry, tier, onEnd, onQuit, onError }: Props) {
 
 		return () => {
 			cancelled = true;
+			if (holdTimer.current) window.clearTimeout(holdTimer.current);
 			engine?.dispose();
 			engineRef.current = null;
 		};

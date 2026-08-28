@@ -5,12 +5,11 @@ import type { ScoreEntry, ScoreSubmission } from "./repository";
 
 const PENDING_KEY = "ctb.pending-scores";
 
-/** Only this map and tier feed the shared board; everything else is free play. */
+/**
+ * The tier the second-screen board shows for the featured map. Every song and
+ * difficulty keeps its own board — this only decides what goes on the big screen.
+ */
 export const RANKED_TIER = "EASY";
-
-export function isRanked(tournament: boolean, tier: string): boolean {
-	return tournament && tier === RANKED_TIER;
-}
 
 export async function fetchBoard(
 	slug: string,
