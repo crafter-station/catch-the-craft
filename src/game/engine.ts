@@ -98,6 +98,13 @@ export class GameEngine {
 	/** Chart time of the most recent break, for the screen shake. */
 	private lastMissAtMs = Number.NEGATIVE_INFINITY;
 
+	/**
+	 * The sponsor riding the plate for this run, drawn on it as a partner. Rolled
+	 * once per run rather than per frame, so it is a fixture of the run and not a
+	 * flicker, and it is independent of which fruit spawn.
+	 */
+	private readonly partnerIndex = Math.floor(Math.random() * SPONSORS.length);
+
 	private readonly held = new Set<string>();
 	private inputMode: InputMode = "keyboard";
 	private disposed = false;
@@ -198,6 +205,7 @@ export class GameEngine {
 			progress,
 			catchFlash: Math.max(0, 1 - (chartTime - this.lastCatchAtMs) / 140),
 			missShake: Math.max(0, 1 - (chartTime - this.lastMissAtMs) / MISS_SHAKE_MS),
+			partnerIndex: this.partnerIndex,
 		});
 
 		this.effects = this.effects.filter((e) => chartTime - e.bornAtMs < 400);

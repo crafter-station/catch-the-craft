@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { prefetchAudio } from "@/game/audio/cache";
 import { menuContext } from "@/game/audio/menu-audio";
 import { disposeMenuMusic, playMenuTrack, stopMenuTrack } from "@/game/audio/menu-music";
@@ -120,12 +120,15 @@ export default function Home() {
 			<div className="scanlines pointer-events-none fixed inset-0 z-40" aria-hidden="true" />
 
 			<main
-				className={`relative z-10 mx-auto flex flex-col px-6 ${
+				// Every menu screen is pinned to the viewport; lists scroll in their own boxes.
+				className={`relative z-10 mx-auto flex h-dvh flex-col overflow-hidden px-6 ${
 					phase.name === "title"
-						? "h-dvh max-w-6xl gap-5 overflow-hidden py-6"
-						: phase.name === "start"
-							? "h-dvh max-w-3xl justify-center overflow-hidden py-12"
-							: "min-h-dvh max-w-3xl justify-center py-12"
+						? "max-w-6xl gap-5 py-6"
+						: phase.name === "results"
+							? "max-w-5xl gap-4 py-8"
+							: phase.name === "songs" || phase.name === "song"
+								? "max-w-3xl gap-3 py-8"
+								: "max-w-3xl justify-center py-12"
 				}`}
 			>
 				{/* Held back on the start screen so it is one of the things that fades in. */}
@@ -296,35 +299,38 @@ function SongList({
 	onBack: () => void;
 }) {
 	return (
-		<section className="mt-10">
+		<section className="flex min-h-0 flex-1 flex-col">
 			<p className="rise text-[color:var(--text-dim)] text-sm">20 LOAD &quot;BEATMAP&quot;,8,1</p>
 
-			<ul className="mt-6 space-y-3">
-				{library.map((entry, index) => (
-					<li key={entry.slug} className={`rise rise-${Math.min(3, index + 1)}`}>
-						<button
-							type="button"
-							onClick={() => onSelect(entry)}
-							className="panel block w-full p-5 text-left transition-colors hover:bg-[color:var(--screen)]"
-						>
-							<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-								<span className="text-[color:var(--text-dim)] text-sm tabular-nums">
-									{String((index + 1) * 10).padStart(3, "0")}
-								</span>
-								<h2 className="pixel-heading text-base sm:text-lg">{entry.title}</h2>
-								{entry.tournament && (
-									<span className="rounded bg-[color:var(--bone)] px-2 py-0.5 font-semibold text-[10px] text-[color:var(--void)] tracking-[0.12em]">
-										FEATURED
+			{/* The list scrolls inside its own box; the page itself never does. */}
+			<div className="gallery-mask gallery-scroll mt-5 min-h-0 flex-1 overflow-y-auto pr-2">
+				<ul className="space-y-3">
+					{library.map((entry, index) => (
+						<li key={entry.slug} className={`rise rise-${Math.min(3, index + 1)}`}>
+							<button
+								type="button"
+								onClick={() => onSelect(entry)}
+								className="panel block w-full p-4 text-left transition-colors hover:bg-[color:var(--screen)]"
+							>
+								<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+									<span className="text-[color:var(--text-dim)] text-sm tabular-nums">
+										{String((index + 1) * 10).padStart(3, "0")}
 									</span>
-								)}
-							</div>
-							<p className="mt-1 text-[color:var(--text-dim)] text-sm">{entry.artist}</p>
-						</button>
-					</li>
-				))}
-			</ul>
+									<h2 className="pixel-heading text-base sm:text-lg">{entry.title}</h2>
+									{entry.tournament && (
+										<span className="rounded bg-[color:var(--bone)] px-2 py-0.5 font-semibold text-[10px] text-[color:var(--void)] tracking-[0.12em]">
+											FEATURED
+										</span>
+									)}
+								</div>
+								<p className="mt-1 text-[color:var(--text-dim)] text-sm">{entry.artist}</p>
+							</button>
+						</li>
+					))}
+				</ul>
+			</div>
 
-			<button type="button" onClick={onBack} className="keycap-ghost mt-8 px-5 py-2.5">
+			<button type="button" onClick={onBack} className="keycap-ghost mt-5 self-start px-5 py-2.5">
 				BACK
 			</button>
 		</section>
@@ -334,8 +340,8 @@ function SongList({
 /**
  * Song detail: pick a difficulty, see who is ahead of you on it, then play.
  *
- * The board sits between choosing and playing on purpose — a target you read
- * ten seconds before a run is worth more than one you read after it.
+ * The board sits between choosing and playing on purpose — a target read ten
+ * seconds before a run is worth more than one read after it.
  */
 function SongDetail({
 	entry,
@@ -372,13 +378,13 @@ function SongDetail({
 	const difficulty = entry.difficulties.find((d) => d.tier === tier);
 
 	return (
-		<section className="mt-10">
+		<section className="flex min-h-0 flex-1 flex-col">
 			<div className="rise">
 				<h2 className="pixel-heading text-xl sm:text-2xl">{entry.title}</h2>
 				<p className="mt-1 text-[color:var(--text-dim)] text-sm">{entry.artist}</p>
 			</div>
 
-			<div className="rise rise-1 mt-6 flex flex-wrap gap-2">
+			<div className="rise rise-1 mt-5 flex flex-wrap gap-2">
 				{entry.difficulties.map((option) => (
 					<button
 						key={option.tier}
@@ -406,16 +412,18 @@ function SongDetail({
 				</p>
 			)}
 
-			<div className="rise rise-2 mt-8">
+			<div className="rise rise-2 mt-6 flex min-h-0 flex-1 flex-col">
 				<p className="section-label">High scores &mdash; {tier}</p>
 				{scores === null ? (
 					<p className="mt-4 cursor text-[color:var(--text-dim)] text-sm">LOADING BOARD... </p>
 				) : (
-					<Board scores={scores} />
+					<div className="gallery-mask gallery-scroll min-h-0 flex-1 overflow-y-auto pr-2">
+						<Board scores={scores} />
+					</div>
 				)}
 			</div>
 
-			<div className="rise rise-3 mt-10 flex flex-wrap gap-3">
+			<div className="rise rise-3 mt-5 flex flex-wrap gap-3">
 				<button type="button" onClick={onPlay} className="keycap px-8 py-3 font-semibold">
 					PLAY
 				</button>
@@ -427,6 +435,11 @@ function SongDetail({
 	);
 }
 
+/**
+ * Results, two columns so nothing scrolls: the run on the left, the board it
+ * just joined on the right. The board loads immediately rather than after
+ * saving, so the space is doing something while the name is being typed.
+ */
 function Results({
 	result,
 	entry,
@@ -441,6 +454,18 @@ function Results({
 	const [saved, setSaved] = useState<{ name: string; queued: boolean } | null>(null);
 	const [board, setBoard] = useState<ScoreEntry[] | null>(null);
 
+	const refreshBoard = useCallback(async () => {
+		try {
+			setBoard(await fetchBoard(result.slug, result.tier));
+		} catch {
+			setBoard([]);
+		}
+	}, [result.slug, result.tier]);
+
+	useEffect(() => {
+		void refreshBoard();
+	}, [refreshBoard]);
+
 	const rows: Array<[string, string]> = [
 		["SCORE", String(result.score).padStart(8, "0")],
 		["ACCURACY", `${(result.accuracy * 100).toFixed(2)}%`],
@@ -452,65 +477,73 @@ function Results({
 	async function save(name: string) {
 		const outcome = await submitScore(result, name);
 		setSaved({ name, queued: outcome === "queued" });
-		try {
-			setBoard(await fetchBoard(result.slug, result.tier));
-		} catch {
-			setBoard([]);
-		}
+		await refreshBoard();
 	}
 
 	return (
-		<section className="mt-10">
-			<div className="rise">
-				<h2 className="pixel-heading text-2xl">Run complete</h2>
-				<p className="mt-2 text-[color:var(--text-dim)] text-sm">
-					{entry.artist} — {entry.title} [{result.tier}]
-				</p>
-			</div>
-
-			<dl className="rise rise-1 panel mt-6 max-w-sm p-5">
-				{rows.map(([label, value], index) => (
-					<div
-						key={label}
-						className={`flex justify-between py-2 ${
-							index > 0 ? "border-[color:var(--border)] border-t" : ""
-						}`}
-					>
-						<dt className="text-[color:var(--text-dim)] text-sm">{label}</dt>
-						<dd className="font-[family-name:var(--font-pixel)] tabular-nums">{value}</dd>
-					</div>
-				))}
-			</dl>
-
-			{!saved && (
-				<div className="rise rise-2">
-					<NameEntry onSubmit={save} />
+		<section className="grid min-h-0 flex-1 gap-8 lg:grid-cols-2">
+			<div className="flex min-h-0 flex-col overflow-y-auto pr-1">
+				<div className="rise">
+					<h2 className="pixel-heading text-2xl">Run complete</h2>
+					<p className="mt-2 text-[color:var(--text-dim)] text-sm">
+						{entry.artist} — {entry.title} [{result.tier}]
+					</p>
 				</div>
-			)}
 
-			{saved && (
-				<div className="rise mt-8">
+				<dl className="rise rise-1 panel mt-5 p-4">
+					{rows.map(([label, value], index) => (
+						<div
+							key={label}
+							className={`flex justify-between py-1.5 ${
+								index > 0 ? "border-[color:var(--border)] border-t" : ""
+							}`}
+						>
+							<dt className="text-[color:var(--text-dim)] text-sm">{label}</dt>
+							<dd className="font-[family-name:var(--font-pixel)] tabular-nums">{value}</dd>
+						</div>
+					))}
+				</dl>
+
+				{!saved && (
+					<div className="rise rise-2">
+						<NameEntry onSubmit={save} />
+					</div>
+				)}
+
+				{saved && (
 					<p
-						className={
+						className={`rise mt-6 ${
 							saved.queued ? "text-[color:var(--destructive)]" : "text-[color:var(--bright)]"
-						}
+						}`}
 					>
 						{saved.queued ? "SCORE SAVED LOCALLY — SYNC PENDING" : "SCORE SAVED"}
 					</p>
-					{board && <Board scores={board} highlight={saved.name} />}
-				</div>
-			)}
+				)}
 
-			<div className="rise rise-3 mt-10 flex flex-wrap gap-3">
-				<button type="button" onClick={onAgain} className="keycap px-5 py-2.5 font-semibold">
-					RETRY
-				</button>
-				<button type="button" onClick={onSong} className="keycap-ghost px-5 py-2.5">
-					SONG
-				</button>
-				<Link href="/leaderboard" className="keycap-ghost px-5 py-2.5">
-					BOARD
-				</Link>
+				<div className="rise rise-3 mt-6 flex flex-wrap gap-3">
+					<button type="button" onClick={onAgain} className="keycap px-5 py-2.5 font-semibold">
+						RETRY
+					</button>
+					<button type="button" onClick={onSong} className="keycap-ghost px-5 py-2.5">
+						SONG
+					</button>
+					<Link href="/leaderboard" className="keycap-ghost px-5 py-2.5">
+						BOARD
+					</Link>
+				</div>
+			</div>
+
+			<div className="rise rise-2 flex min-h-0 flex-col">
+				<p className="section-label">
+					{entry.title} &mdash; {result.tier}
+				</p>
+				<div className="gallery-mask gallery-scroll min-h-0 flex-1 overflow-y-auto pr-2">
+					{board === null ? (
+						<p className="mt-4 cursor text-[color:var(--text-dim)] text-sm">LOADING BOARD... </p>
+					) : (
+						<Board scores={board} highlight={saved?.name} />
+					)}
+				</div>
 			</div>
 		</section>
 	);

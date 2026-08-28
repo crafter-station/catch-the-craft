@@ -3,6 +3,7 @@ import type {
 	ScoreEntry,
 	ScoreRepository,
 	ScoreSubmission,
+	TotalEntry,
 } from "./repository";
 
 /**
@@ -56,6 +57,29 @@ export class PostgresScoreRepository implements ScoreRepository {
 		return rows.map(toEntry);
 	}
 
+	/** Grouped by name: a player's standing is the sum of everything they played. */
+	async totals(limit: number): Promise<TotalEntry[]> {
+		await this.ensureSchema();
+		const rows = await this.sql<TotalRow[]>`
+      SELECT initials AS name,
+             SUM(score)::int      AS score,
+             COUNT(*)::int        AS runs,
+             AVG(accuracy)::real  AS accuracy,
+             MAX(max_combo)::int  AS max_combo
+      FROM scores
+      GROUP BY initials
+      ORDER BY score DESC
+      LIMIT ${limit}
+    `;
+		return rows.map((row) => ({
+			name: row.name,
+			score: row.score,
+			runs: row.runs,
+			accuracy: row.accuracy,
+			maxCombo: row.max_combo,
+		}));
+	}
+
 	async add(submission: ScoreSubmission): Promise<ScoreEntry> {
 		await this.ensureSchema();
 		const [row] = await this.sql<Row[]>`
@@ -68,6 +92,14 @@ export class PostgresScoreRepository implements ScoreRepository {
     `;
 		return toEntry(row);
 	}
+}
+
+interface TotalRow {
+	name: string;
+	score: number;
+	runs: number;
+	accuracy: number;
+	max_combo: number;
 }
 
 interface Row {

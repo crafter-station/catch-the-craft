@@ -54,6 +54,8 @@ export interface Frame {
 	catchFlash: number;
 	/** 1 immediately after a drop, decaying to 0. Drives the screen shake. */
 	missShake: number;
+	/** Sponsor riding the plate for this run. */
+	partnerIndex: number;
 }
 
 export interface Rect {
@@ -285,6 +287,13 @@ export class CanvasRenderer {
 		ctx.roundRect(left, top, width, height, radius);
 		ctx.fill();
 		ctx.stroke();
+
+		// The run's partner rides the plate, sitting on its top edge.
+		const partner = this.atlas?.forCombo(frame.partnerIndex);
+		if (partner) {
+			const size = Math.min(34, width * 0.32);
+			ctx.drawImage(partner, left + width / 2 - size / 2, top - size * 0.72, size, size);
+		}
 
 		// A brief halo so a catch registers even when the plate is off in the corner.
 		if (catchFlash > 0) {

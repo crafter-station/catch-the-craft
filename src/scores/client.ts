@@ -1,7 +1,7 @@
 "use client";
 
 import type { RunResult } from "@/game/engine";
-import type { ScoreEntry, ScoreSubmission } from "./repository";
+import type { ScoreEntry, ScoreSubmission, TotalEntry } from "./repository";
 
 const PENDING_KEY = "ctb.pending-scores";
 
@@ -21,6 +21,13 @@ export async function fetchBoard(
 	);
 	if (!response.ok) throw new Error("Leaderboard unavailable");
 	return (await response.json()).scores as ScoreEntry[];
+}
+
+/** The overall standing across every song, for the big board. */
+export async function fetchTotals(): Promise<TotalEntry[]> {
+	const response = await fetch("/api/scores/totals", { cache: "no-store" });
+	if (!response.ok) throw new Error("Leaderboard unavailable");
+	return (await response.json()).scores as TotalEntry[];
 }
 
 export type SubmitOutcome = "saved" | "queued";

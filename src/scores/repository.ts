@@ -12,6 +12,18 @@ export interface ScoreEntry {
 
 export type ScoreSubmission = Omit<ScoreEntry, "createdAt">;
 
+/** One player's standing across every song they have played. */
+export interface TotalEntry {
+	name: string;
+	/** Sum of every run they have saved. */
+	score: number;
+	runs: number;
+	/** Mean accuracy across those runs. */
+	accuracy: number;
+	/** Best combo they have reached on any song. */
+	maxCombo: number;
+}
+
 /**
  * Storage seam for the leaderboard.
  *
@@ -21,8 +33,10 @@ export type ScoreSubmission = Omit<ScoreEntry, "createdAt">;
  * thing being built has to be demonstrable on a laptop at a venue.
  */
 export interface ScoreRepository {
-	/** Highest scores first. */
+	/** Highest scores first, for one song and difficulty. */
 	top(slug: string, tier: string, limit: number): Promise<ScoreEntry[]>;
+	/** Highest cumulative scores first, across every song. */
+	totals(limit: number): Promise<TotalEntry[]>;
 	add(entry: ScoreSubmission): Promise<ScoreEntry>;
 }
 
