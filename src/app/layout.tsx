@@ -25,9 +25,38 @@ const borel = Borel({
 	display: "swap",
 });
 
+const SITE_URL = "https://catch.crafter.run";
+const TITLE = "CATCH THE CRAFT";
+const DESCRIPTION = "osu!catch for The Next Craft — catch the sponsors, keep the combo.";
+
 export const metadata: Metadata = {
-	title: "CATCH THE CRAFT",
-	description: "osu!catch for The Next Craft — catch the sponsors, keep the combo.",
+	// Chat clients resolve nothing: every URL in a link preview has to be
+	// absolute, and metadataBase is what turns the relative ones below into that.
+	metadataBase: new URL(SITE_URL),
+	title: TITLE,
+	description: DESCRIPTION,
+	openGraph: {
+		type: "website",
+		url: SITE_URL,
+		siteName: TITLE,
+		title: TITLE,
+		description: DESCRIPTION,
+		images: [
+			{
+				url: "/og.jpg",
+				width: 1200,
+				height: 630,
+				type: "image/jpeg",
+				alt: "Catch the Craft — sponsor logos falling towards a catcher plate",
+			},
+		],
+	},
+	twitter: {
+		card: "summary_large_image",
+		title: TITLE,
+		description: DESCRIPTION,
+		images: ["/og.jpg"],
+	},
 };
 
 export const viewport: Viewport = {
