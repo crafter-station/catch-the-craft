@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { prefetchAudio } from "@/game/audio/cache";
+import { menuContext } from "@/game/audio/menu-audio";
 import { disposeMenuMusic, playMenuTrack, stopMenuTrack } from "@/game/audio/menu-music";
 import type { RunResult } from "@/game/engine";
 import { type BeatmapEntry, loadManifest, type Tier } from "@/game/library";
@@ -23,6 +24,7 @@ const MENU_THEME_URL = "/music/triangles.mp3";
 
 type Phase =
 	| { name: "loading" }
+	| { name: "start" }
 	| { name: "title" }
 	| { name: "settings" }
 	| { name: "songs" }
@@ -43,7 +45,7 @@ export default function Home() {
 		loadManifest()
 			.then((entries) => {
 				setLibrary(entries);
-				setPhase({ name: "title" });
+				setPhase({ name: "start" });
 			})
 			.catch((error: Error) => setPhase({ name: "error", message: error.message }));
 	}, []);
@@ -83,6 +85,16 @@ export default function Home() {
 		})();
 	}, [library]);
 
+	/**
+	 * The track is already fetched, decoded and scheduled; this click is simply the
+	 * activation the browser was waiting for, so the music starts on the press
+	 * rather than some way after it.
+	 */
+	function begin() {
+		void menuContext();
+		setPhase({ name: "title" });
+	}
+
 	if (phase.name === "playing") {
 		return (
 			<>
@@ -111,12 +123,21 @@ export default function Home() {
 				className={`relative z-10 mx-auto flex flex-col px-6 ${
 					phase.name === "title"
 						? "h-dvh max-w-6xl gap-5 overflow-hidden py-6"
-						: "min-h-dvh max-w-3xl justify-center py-12"
+						: phase.name === "start"
+							? "h-dvh max-w-3xl justify-center overflow-hidden py-12"
+							: "min-h-dvh max-w-3xl justify-center py-12"
 				}`}
 			>
-				<BrandBar />
+				{/* Held back on the start screen so it is one of the things that fades in. */}
+				{phase.name !== "start" && phase.name !== "loading" && (
+					<BrandBar className={phase.name === "title" ? "rise" : ""} />
+				)}
 
-				<Header compact={phase.name !== "title" && phase.name !== "loading"} />
+				<Header
+					compact={
+						phase.name !== "title" && phase.name !== "start" && phase.name !== "loading"
+					}
+				/>
 
 				{phase.name === "loading" && (
 					<p className="mt-10 cursor text-[color:var(--text-dim)]">LOADING BEATMAPS... </p>
@@ -129,13 +150,15 @@ export default function Home() {
 					</div>
 				)}
 
+				{phase.name === "start" && <StartScreen onStart={begin} />}
+
 				{phase.name === "title" && (
 					<div className="grid min-h-0 flex-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_17rem]">
 						<TitleScreen
 							onPlay={() => setPhase({ name: "songs" })}
 							onSettings={() => setPhase({ name: "settings" })}
 						/>
-						<ParticipantCarousel />
+						<ParticipantCarousel className="rise rise-3" />
 					</div>
 				)}
 
@@ -183,7 +206,7 @@ export default function Home() {
 						}
 					/>
 				)}
-				{phase.name === "title" && <SponsorStrip />}
+				{phase.name === "title" && <SponsorStrip className="rise rise-5" />}
 			</main>
 
 			{wipeLabel && <Wipe label={wipeLabel} />}
@@ -201,6 +224,21 @@ function Header({ compact }: { compact: boolean }) {
 				<ShakyText>Catch the Craft</ShakyText>
 			</h1>
 		</header>
+	);
+}
+
+function StartScreen({ onStart }: { onStart: () => void }) {
+	return (
+		<section className="mt-16 flex flex-col items-center gap-6">
+			<button
+				type="button"
+				onClick={onStart}
+				className="keycap px-16 py-6 font-semibold text-2xl"
+			>
+				<ShakyText>START</ShakyText>
+			</button>
+			<p className="section-label text-[color:var(--text-dim)]">Press to begin &middot; sound on</p>
+		</section>
 	);
 }
 

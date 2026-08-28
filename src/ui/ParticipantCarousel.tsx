@@ -19,7 +19,7 @@ const thumbnail = (id: number) => `/api/participants/${String(id).padStart(3, "0
  * are still registering, and numbers that turn out to have no published badge
  * drop out rather than showing a broken frame.
  */
-export function ParticipantCarousel() {
+export function ParticipantCarousel({ className = "" }: { className?: string }) {
 	const [ids, setIds] = useState<number[]>([]);
 	const [index, setIndex] = useState(0);
 	const [paused, setPaused] = useState(false);
@@ -75,7 +75,7 @@ export function ParticipantCarousel() {
 
 	if (ids.length === 0) {
 		return (
-			<aside className="hidden lg:block" aria-label="Hackathon participants">
+			<aside className={`hidden lg:block ${className}`} aria-label="Hackathon participants">
 				<p className="section-label">Hackers</p>
 				<p className="mt-4 cursor text-[color:var(--text-dim)] text-xs">LOADING BADGES... </p>
 			</aside>
@@ -90,7 +90,7 @@ export function ParticipantCarousel() {
 
 	return (
 		<aside
-			className="hidden lg:block"
+			className={`hidden lg:block ${className}`}
 			aria-label="Hackathon participants"
 			onMouseEnter={() => setPaused(true)}
 			onMouseLeave={() => setPaused(false)}

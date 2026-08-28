@@ -1,11 +1,11 @@
 /**
- * The sponsor wall along the bottom of the title screen.
+ * The sponsor wall along the bottom of the title screen, as a broadcast crawl.
  *
  * Every logo the event ships, not just the eight that become fruit — the fruit
  * roster is a gameplay choice about how many discs stay distinguishable at 40px,
  * and it should not decide who gets credited.
  */
-const SPONSOR_LOGOS = [
+const SVG_LOGOS = [
 	"convex",
 	"clerk",
 	"cursor",
@@ -22,30 +22,40 @@ const SPONSOR_LOGOS = [
 	"3DevLabs",
 	"visagente",
 	"upch",
-] as const;
+];
 
 /** The few that only exist as bitmaps. */
-const PNG_LOGOS = new Set(["dapta", "ucsm", "innicia-ucsm"]);
+const PNG_LOGOS = ["dapta", "ucsm", "innicia-ucsm"];
 
-const source = (slug: string) => `/sponsors/${slug}.${PNG_LOGOS.has(slug) ? "png" : "svg"}`;
+const SPONSORS = [
+	...SVG_LOGOS.map((slug) => ({ slug, src: `/sponsors/${slug}.svg` })),
+	...PNG_LOGOS.map((slug) => ({ slug, src: `/sponsors/${slug}.png` })),
+];
 
-export function SponsorStrip() {
+export function SponsorStrip({ className = "" }: { className?: string }) {
 	return (
-		<footer className="border-[color:var(--border)] border-t pt-4">
+		<footer className={`border-[color:var(--border)] border-t pt-4 ${className}`}>
 			<p className="section-label text-[color:var(--text-dim)]">Sponsors</p>
 
-			<ul className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-3">
-				{[...SPONSOR_LOGOS, ...PNG_LOGOS].map((slug) => (
-					<li key={slug}>
-						<img
-							src={source(slug)}
-							alt={slug}
-							loading="lazy"
-							className="sponsor-mark h-4 w-auto max-w-24 object-contain sm:h-5"
-						/>
-					</li>
-				))}
-			</ul>
+			<div className="marquee mt-3">
+				<div className="marquee-track">
+					{/* Two passes of the same list: the second is what the first scrolls into. */}
+					{[0, 1].map((pass) => (
+						<ul key={pass} className="flex shrink-0 items-center" aria-hidden={pass === 1}>
+							{SPONSORS.map((sponsor) => (
+								<li key={sponsor.slug} className="px-6">
+									<img
+										src={sponsor.src}
+										alt={pass === 0 ? sponsor.slug : ""}
+										loading="lazy"
+										className="sponsor-mark h-5 w-auto max-w-28 object-contain"
+									/>
+								</li>
+							))}
+						</ul>
+					))}
+				</div>
+			</div>
 		</footer>
 	);
 }

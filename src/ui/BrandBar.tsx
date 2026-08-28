@@ -9,9 +9,9 @@ const REPOSITORY = "https://github.com/crafter-station/catch-the-craft";
  * Sits above everything else on the menu screens so the game reads as part of
  * the event rather than something detached from it.
  */
-export function BrandBar() {
+export function BrandBar({ className = "" }: { className?: string }) {
 	return (
-		<div className="flex items-center justify-between gap-4">
+		<div className={`flex items-center justify-between gap-4 ${className}`}>
 			<Link
 				href="https://crafterstation.com"
 				target="_blank"

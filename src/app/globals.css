@@ -328,14 +328,12 @@
   animation-delay: 210ms;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .wipe,
-  .wipe-label,
-  .rise {
-    animation-duration: 1ms;
-    animation-delay: 0ms;
-  }
-}
+/*
+ * Deliberately not collapsed under prefers-reduced-motion. These are opacity
+ * fades with no movement, and the staggered reveal is the asked-for behaviour
+ * rather than decoration — collapsing them to nothing removes the transition
+ * entirely on exactly the machines that requested it.
+ */
 
 /* ─── Shaky letters ─────────────────────────────────────────────── */
 
@@ -485,4 +483,51 @@ canvas {
 .sponsor-mark:hover {
   filter: none;
   opacity: 1;
+}
+
+/* ─── Sponsor ticker ────────────────────────────────────────────── */
+
+/*
+ * A broadcast-style crawl. The list is rendered twice inside the track and the
+ * track is shifted by exactly half its width, so the loop closes on itself with
+ * no visible seam or jump back to the start.
+ */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 5%,
+    #000 95%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to right, transparent 0, #000 5%, #000 95%, transparent 100%);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 46s linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* Further stagger steps, for the reveal after START. */
+.rise-4 {
+  animation-delay: 280ms;
+}
+
+.rise-5 {
+  animation-delay: 380ms;
 }
