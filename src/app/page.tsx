@@ -23,6 +23,7 @@ import { SponsorStrip } from "@/ui/SponsorStrip";
 import { SoundControls } from "@/ui/SoundControls";
 import { LanguageToggle } from "@/ui/LanguageToggle";
 import { MadeBy } from "@/ui/MadeBy";
+import { MusicPlayer, type PlayerTrack } from "@/ui/MusicPlayer";
 import { UiSounds } from "@/ui/UiSounds";
 import { useWipe, Wipe } from "@/ui/Wipe";
 
@@ -53,6 +54,7 @@ export default function Home() {
 	const [library, setLibrary] = useState<BeatmapEntry[]>([]);
 	const [phase, setPhase] = useState<Phase>({ name: "loading" });
 	const [themeIndex, setThemeIndex] = useState<number | null>(null);
+	const [pinnedTrack, setPinnedTrack] = useState<PlayerTrack | null>(null);
 	const { t, current: language } = useStrings();
 	const { wipeLabel, wipeTo } = useWipe();
 
@@ -86,9 +88,18 @@ export default function Home() {
 	 * Held as primitives rather than an object so the effect does not re-fire on
 	 * every render and restart the track.
 	 */
-	const menuUrl =
-		phase.name === "playing" ? null : phase.name === "song" ? phase.entry.audio : themeUrl;
-	const menuPreviewMs = phase.name === "song" ? phase.entry.previewMs : 0;
+	// What the current screen would play on its own, and what the player pinned
+	// over it. Pinning wins until it is cleared, including across screens — the
+	// point of choosing a track by hand is that it keeps going.
+	const screenTrack: PlayerTrack | null =
+		phase.name === "song"
+			? { url: phase.entry.audio, previewMs: phase.entry.previewMs }
+			: themeUrl
+				? { url: themeUrl, previewMs: 0 }
+				: null;
+	const chosen = pinnedTrack ?? screenTrack;
+	const menuUrl = phase.name === "playing" ? null : (chosen?.url ?? null);
+	const menuPreviewMs = chosen?.previewMs ?? 0;
 
 	// Scheduled straight away rather than waiting for a gesture: the context starts
 	// suspended when autoplay is blocked, and resumes itself on the first
@@ -163,7 +174,15 @@ export default function Home() {
 			>
 				{/* Held back on the start screen so it is one of the things that fades in. */}
 				{phase.name !== "start" && phase.name !== "loading" && (
-					<BrandBar className={phase.name === "title" ? "rise" : ""} />
+					<BrandBar className={phase.name === "title" ? "rise" : ""}>
+						<MusicPlayer
+							library={library}
+							themes={MENU_THEMES[language]}
+							currentUrl={menuUrl}
+							onSelect={setPinnedTrack}
+							pinned={pinnedTrack !== null}
+						/>
+					</BrandBar>
 				)}
 
 				<Header

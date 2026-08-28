@@ -63,6 +63,11 @@ export interface Strings {
 	wipeLoading: string;
 	wipeResults: string;
 	wipeList: string;
+	playlist: string;
+	opening: string;
+	auto: string;
+	nowPlaying: string;
+	beatmaps: string;
 	easy: string;
 	normal: string;
 	hard: string;
@@ -120,6 +125,11 @@ const EN: Strings = {
 	wipeLoading: "LOADING",
 	wipeResults: "RESULTS",
 	wipeList: "LIST",
+	playlist: "Playlist",
+	opening: "Opening",
+	auto: "Auto",
+	nowPlaying: "Now playing",
+	beatmaps: "Beatmaps",
 	easy: "EASY",
 	normal: "NORMAL",
 	hard: "HARD",
@@ -178,6 +188,11 @@ const ES: Strings = {
 	wipeLoading: "CARGANDO",
 	wipeResults: "RESULTADOS",
 	wipeList: "LISTA",
+	playlist: "Lista",
+	opening: "Apertura",
+	auto: "Auto",
+	nowPlaying: "Sonando",
+	beatmaps: "Canciones",
 	easy: "FÁCIL",
 	normal: "NORMAL",
 	hard: "DIFÍCIL",
