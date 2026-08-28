@@ -122,19 +122,27 @@ of the screen changing under the player.
 The menus play osu!lazer's intro theme, cYsmix - triangles. On a song screen it
 switches to that beatmap from the chart's own `PreviewTime`, looping back to the
 preview point rather than the top of the track — the way osu! song select does.
-It waits for the first click or keypress, because browsers refuse audio before
-one.
+The context is built and the track scheduled on load, before any interaction.
+Browsers start it suspended when autoplay is blocked, and it resumes itself on
+the first gesture — a keypress, a touch, reaching for PLAY — with the audio
+already fetched, decoded and queued. Waiting for the gesture before *loading*
+meant the music only arrived some time after the first click.
 
 Every track, the menu theme and the hitsounds go into the Cache API
 (`ctb-audio-v1`), and the beatmaps are pulled down while someone is still
 reading the menu. A booth laptop downloads each song once no matter how many
 people play it, and a reload costs nothing.
 
-The title carries a wall of participant badges. Numbers are not contiguous, so
-the roster size is discovered server-side with a gap-tolerant probe and missing
-badges drop out of the grid. Upstream serves 1080x1350 JPEGs at ~400KB with
+The title's letters shake continuously, each on its own offset so the word never
+moves as one block, and tighten into a faster jitter while hovered.
+
+Beside them, hackathon badges cross-fade one at a time every 900ms. All of them
+are fetched up front, because at that cadence a single uncached image is a
+visible stall. Numbers are not contiguous, so the roster size is discovered
+server-side with a gap-tolerant probe and numbers with no published badge drop
+out of the rotation. Upstream serves 1080x1350 JPEGs at ~400KB with
 `max-age=0`; `/api/participants/[id]` resizes them to 320px WebP (~9KB) and
-serves them immutable, which turns a 63MB gallery into about 1.5MB.
+serves them immutable, which turns 63MB of badges into about 1.5MB.
 
 ## Leaderboard
 

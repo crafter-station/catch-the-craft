@@ -340,24 +340,22 @@
 /* ─── Shaky letters ─────────────────────────────────────────────── */
 
 /*
- * Idle letters sit still and twitch occasionally, staggered per character so the
- * word never moves as one block. Hovering turns the twitch into a constant
- * jitter — the title keeps shaking for as long as you are pointing at it.
+ * Every letter shakes the whole time, each on its own offset so the word never
+ * moves as one block. Hovering tightens it into a faster, wider jitter.
  */
-@keyframes letter-twitch {
+@keyframes letter-shake {
   0%,
-  90%,
   100% {
     transform: translate(0, 0) rotate(0deg);
   }
-  92% {
-    transform: translate(-1px, 1px) rotate(-2deg);
+  25% {
+    transform: translate(-0.8px, 0.6px) rotate(-1.4deg);
   }
-  95% {
-    transform: translate(1px, -1px) rotate(2deg);
+  50% {
+    transform: translate(0.7px, -0.7px) rotate(1.4deg);
   }
-  98% {
-    transform: translate(-1px, 0) rotate(-1deg);
+  75% {
+    transform: translate(-0.5px, -0.6px) rotate(-0.8deg);
   }
 }
 
@@ -367,13 +365,13 @@
     transform: translate(0, 0) rotate(0deg);
   }
   25% {
-    transform: translate(-1.5px, 1.5px) rotate(-3deg);
+    transform: translate(-2px, 2px) rotate(-4deg);
   }
   50% {
-    transform: translate(1.5px, -1px) rotate(3deg);
+    transform: translate(2px, -1.5px) rotate(4deg);
   }
   75% {
-    transform: translate(-1px, -1.5px) rotate(-2deg);
+    transform: translate(-1.5px, -2px) rotate(-3deg);
   }
 }
 
@@ -385,15 +383,16 @@
 
 .shaky > span {
   display: inline-block;
-  animation: letter-twitch 3.2s ease-in-out infinite;
-  animation-delay: calc(var(--letter) * 70ms);
+  animation: letter-shake 900ms ease-in-out infinite;
+  /* Staggered by a prime-ish fraction of the cycle so the letters never line up. */
+  animation-delay: calc(var(--letter) * -137ms);
   will-change: transform;
 }
 
 .shaky:hover > span,
 .shaky:focus-visible > span {
   animation-name: letter-jitter;
-  animation-duration: 380ms;
+  animation-duration: 320ms;
 }
 
 /* ─── Participant gallery ───────────────────────────────────────── */

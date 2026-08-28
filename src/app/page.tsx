@@ -11,7 +11,7 @@ import type { ScoreEntry } from "@/scores/repository";
 import { Board } from "@/ui/Board";
 import { GameCanvas } from "@/ui/GameCanvas";
 import { NameEntry } from "@/ui/NameEntry";
-import { ParticipantGallery } from "@/ui/ParticipantGallery";
+import { ParticipantCarousel } from "@/ui/ParticipantCarousel";
 import { ShakyText } from "@/ui/ShakyText";
 import { SoundControls } from "@/ui/SoundControls";
 import { useWipe, Wipe } from "@/ui/Wipe";
@@ -32,7 +32,6 @@ type Phase =
 export default function Home() {
 	const [library, setLibrary] = useState<BeatmapEntry[]>([]);
 	const [phase, setPhase] = useState<Phase>({ name: "loading" });
-	const [audioUnlocked, setAudioUnlocked] = useState(false);
 	const { wipeLabel, wipeTo } = useWipe();
 
 	useEffect(() => {
@@ -45,18 +44,6 @@ export default function Home() {
 				setPhase({ name: "title" });
 			})
 			.catch((error: Error) => setPhase({ name: "error", message: error.message }));
-	}, []);
-
-	// Browsers refuse audio until the player has interacted, so the menu track
-	// waits for the first click or keypress rather than failing silently.
-	useEffect(() => {
-		const unlock = () => setAudioUnlocked(true);
-		window.addEventListener("pointerdown", unlock, { once: true });
-		window.addEventListener("keydown", unlock, { once: true });
-		return () => {
-			window.removeEventListener("pointerdown", unlock);
-			window.removeEventListener("keydown", unlock);
-		};
 	}, []);
 
 	useEffect(() => () => disposeMenuMusic(), []);
@@ -73,19 +60,23 @@ export default function Home() {
 		phase.name === "playing" ? null : phase.name === "song" ? phase.entry.audio : MENU_THEME_URL;
 	const menuPreviewMs = phase.name === "song" ? phase.entry.previewMs : 0;
 
+	// Scheduled straight away rather than waiting for a gesture: the context starts
+	// suspended when autoplay is blocked, and resumes itself on the first
+	// interaction with the track already loaded and queued.
 	useEffect(() => {
-		if (!audioUnlocked || !menuUrl) {
+		if (!menuUrl) {
 			stopMenuTrack();
 			return;
 		}
 		void playMenuTrack(menuUrl, menuPreviewMs);
-	}, [audioUnlocked, menuUrl, menuPreviewMs]);
+	}, [menuUrl, menuPreviewMs]);
 
 	// Pull the beatmap tracks down while someone is still reading the menu, so
 	// starting a run does not wait on a few megabytes of venue wifi.
 	useEffect(() => {
 		if (library.length === 0) return;
 		void (async () => {
+			await prefetchAudio(MENU_THEME_URL);
 			for (const entry of library) await prefetchAudio(entry.audio);
 		})();
 	}, [library]);
@@ -134,7 +125,7 @@ export default function Home() {
 							onPlay={() => setPhase({ name: "songs" })}
 							onSettings={() => setPhase({ name: "settings" })}
 						/>
-						<ParticipantGallery />
+						<ParticipantCarousel />
 					</div>
 				)}
 
