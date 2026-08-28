@@ -71,6 +71,20 @@ export interface Strings {
 	auto: string;
 	nowPlaying: string;
 	beatmaps: string;
+	tutorial: string;
+	tutorialHint: string;
+	tutorialMove: string;
+	tutorialMoveBody: string;
+	tutorialCatch: string;
+	tutorialCatchBody: string;
+	tutorialDash: string;
+	tutorialDashBody: string;
+	tutorialCombo: string;
+	tutorialComboBody: string;
+	tutorialDone: string;
+	tutorialDoneBody: string;
+	tutorialSkip: string;
+	tutorialExit: string;
 	easy: string;
 	normal: string;
 	hard: string;
@@ -137,6 +151,20 @@ const EN: Strings = {
 	auto: "Auto",
 	nowPlaying: "Now playing",
 	beatmaps: "Beatmaps",
+	tutorial: "HOW TO PLAY",
+	tutorialHint: "First time? Start here.",
+	tutorialMove: "Move the plate",
+	tutorialMoveBody: "Move your mouse left and right. The plate follows it. Arrow keys or A/D work too.",
+	tutorialCatch: "Catch the logos",
+	tutorialCatchBody: "Get the plate underneath each falling logo before it lands. Miss one and nothing bad happens — it just comes back.",
+	tutorialDash: "Hold SPACE to dash",
+	tutorialDashBody: "Dashing moves you twice as fast, for logos that land far away. Hold SPACE while you catch the next three.",
+	tutorialCombo: "Build a combo",
+	tutorialComboBody: "Every catch in a row raises your combo and your score multiplier. Drop one and it goes back to zero.",
+	tutorialDone: "You are ready",
+	tutorialDoneBody: "That is everything. Press ESC during a song to pause.",
+	tutorialSkip: "SKIP",
+	tutorialExit: "EXIT",
 	easy: "EASY",
 	normal: "NORMAL",
 	hard: "HARD",
@@ -204,6 +232,20 @@ const ES: Strings = {
 	auto: "Auto",
 	nowPlaying: "Sonando",
 	beatmaps: "Canciones",
+	tutorial: "CÓMO JUGAR",
+	tutorialHint: "¿Primera vez? Empieza aquí.",
+	tutorialMove: "Mueve la bandeja",
+	tutorialMoveBody: "Mueve el ratón a izquierda y derecha. La bandeja lo sigue. Las flechas o A/D también funcionan.",
+	tutorialCatch: "Atrapa los logos",
+	tutorialCatchBody: "Pon la bandeja debajo de cada logo antes de que caiga. Si fallas no pasa nada — vuelve a salir.",
+	tutorialDash: "Mantén ESPACIO para correr",
+	tutorialDashBody: "Correr te mueve al doble de velocidad, para los logos que caen lejos. Mantén ESPACIO mientras atrapas los próximos tres.",
+	tutorialCombo: "Arma un combo",
+	tutorialComboBody: "Cada atrapada seguida sube tu combo y tu multiplicador. Si se te cae uno, vuelve a cero.",
+	tutorialDone: "Estás listo",
+	tutorialDoneBody: "Eso es todo. Pulsa ESC durante una canción para pausar.",
+	tutorialSkip: "SALTAR",
+	tutorialExit: "SALIR",
 	easy: "FÁCIL",
 	normal: "NORMAL",
 	hard: "DIFÍCIL",

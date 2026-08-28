@@ -10,6 +10,7 @@ import { menuContext } from "@/game/audio/menu-audio";
 import { disposeMenuMusic, playMenuTrack, stopMenuTrack } from "@/game/audio/menu-music";
 import type { RunResult } from "@/game/engine";
 import { type BeatmapEntry, loadManifest, type Tier } from "@/game/library";
+import { hasDoneTutorial } from "@/game/tutorial";
 import { fetchBoard, flushPending, submitScore } from "@/scores/client";
 import type { ScoreEntry } from "@/scores/repository";
 import { Board } from "@/ui/Board";
@@ -20,6 +21,7 @@ import { NameEntry } from "@/ui/NameEntry";
 import { ParticipantCarousel } from "@/ui/ParticipantCarousel";
 import { ShakyText } from "@/ui/ShakyText";
 import { SponsorStrip } from "@/ui/SponsorStrip";
+import { TutorialCanvas } from "@/ui/TutorialCanvas";
 import { SoundControls } from "@/ui/SoundControls";
 import { LanguageToggle } from "@/ui/LanguageToggle";
 import { MadeBy } from "@/ui/MadeBy";
@@ -48,6 +50,7 @@ type Phase =
 	| { name: "settings" }
 	| { name: "songs" }
 	| { name: "song"; entry: BeatmapEntry; tier: Tier }
+	| { name: "tutorial" }
 	| { name: "playing"; entry: BeatmapEntry; tier: Tier }
 	| { name: "results"; entry: BeatmapEntry; result: RunResult }
 	| { name: "error"; message: string };
@@ -141,6 +144,20 @@ export default function Home() {
 	// the notice — someone who scanned the QR at least hears the theme.
 	if (isMobile) return <MobileNotice />;
 
+	if (phase.name === "tutorial") {
+		return (
+			<>
+				<UiSounds />
+				<TutorialCanvas
+					onPlay={() => wipeTo(t.wipeList, () => setPhase({ name: "songs" }))}
+					onQuit={() => wipeTo(t.wipeList, () => setPhase({ name: "title" }))}
+					onError={(message) => setPhase({ name: "error", message })}
+				/>
+				{wipeLabel && <Wipe label={wipeLabel} />}
+			</>
+		);
+	}
+
 	if (phase.name === "playing") {
 		return (
 			<>
@@ -215,6 +232,7 @@ export default function Home() {
 					<div className="grid min-h-0 flex-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_17rem]">
 						<TitleScreen
 							onPlay={() => setPhase({ name: "songs" })}
+							onTutorial={() => wipeTo(t.tutorial, () => setPhase({ name: "tutorial" }))}
 							onSettings={() => setPhase({ name: "settings" })}
 						/>
 						<ParticipantCarousel className="rise rise-3" />
@@ -308,8 +326,21 @@ function StartScreen({ onStart }: { onStart: () => void }) {
 	);
 }
 
-function TitleScreen({ onPlay, onSettings }: { onPlay: () => void; onSettings: () => void }) {
+function TitleScreen({
+	onPlay,
+	onTutorial,
+	onSettings,
+}: {
+	onPlay: () => void;
+	onTutorial: () => void;
+	onSettings: () => void;
+}) {
 	const { t } = useStrings();
+
+	// Read after mount: localStorage does not exist while this renders on the
+	// server, and seeding from it directly would mismatch the first paint.
+	const [taught, setTaught] = useState(true);
+	useEffect(() => setTaught(hasDoneTutorial()), []);
 
 	return (
 		<section>
@@ -324,6 +355,21 @@ function TitleScreen({ onPlay, onSettings }: { onPlay: () => void; onSettings: (
 					<Icon name="play" size={0.9} />
 					<ShakyText>{t.play}</ShakyText>
 				</button>
+				<button
+					type="button"
+					onClick={onTutorial}
+					className="keycap-ghost inline-flex items-center justify-center gap-3 py-4"
+				>
+					<Icon name="help" size={0.9} />
+					<ShakyText>{t.tutorial}</ShakyText>
+				</button>
+
+				{/* Only for someone who has never finished it. A returning player at a
+				    booth does not need to be told to do the tutorial again. */}
+				{!taught && (
+					<p className="-mt-1 text-[color:var(--bright)] text-xs">{t.tutorialHint}</p>
+				)}
+
 				<button
 					type="button"
 					onClick={onSettings}
