@@ -17,6 +17,7 @@ import { ParticipantCarousel } from "@/ui/ParticipantCarousel";
 import { ShakyText } from "@/ui/ShakyText";
 import { SponsorStrip } from "@/ui/SponsorStrip";
 import { SoundControls } from "@/ui/SoundControls";
+import { MadeBy } from "@/ui/MadeBy";
 import { UiSounds } from "@/ui/UiSounds";
 import { useWipe, Wipe } from "@/ui/Wipe";
 
@@ -256,6 +257,7 @@ function StartScreen({ onStart }: { onStart: () => void }) {
 				<ShakyText>START</ShakyText>
 			</button>
 			<p className="section-label text-[color:var(--text-dim)]">Press to begin &middot; sound on</p>
+			<MadeBy className="mt-2" />
 		</section>
 	);
 }
