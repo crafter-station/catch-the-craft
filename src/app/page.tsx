@@ -17,6 +17,7 @@ import { ParticipantCarousel } from "@/ui/ParticipantCarousel";
 import { ShakyText } from "@/ui/ShakyText";
 import { SponsorStrip } from "@/ui/SponsorStrip";
 import { SoundControls } from "@/ui/SoundControls";
+import { UiSounds } from "@/ui/UiSounds";
 import { useWipe, Wipe } from "@/ui/Wipe";
 
 /**
@@ -110,6 +111,7 @@ export default function Home() {
 	if (phase.name === "playing") {
 		return (
 			<>
+				<UiSounds />
 				<GameCanvas
 					entry={phase.entry}
 					tier={phase.tier}
@@ -128,6 +130,7 @@ export default function Home() {
 
 	return (
 		<div className="relative min-h-dvh overflow-hidden">
+			<UiSounds />
 			<div className="grid-bg" aria-hidden="true" />
 			<div className="scanlines pointer-events-none fixed inset-0 z-40" aria-hidden="true" />
 

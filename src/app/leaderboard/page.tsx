@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { fetchTotals } from "@/scores/client";
 import type { TotalEntry } from "@/scores/repository";
 import { Board } from "@/ui/Board";
+import { UiSounds } from "@/ui/UiSounds";
 
 /** How often the second-screen board refreshes itself. */
 const POLL_MS = 5000;
@@ -39,6 +40,7 @@ export default function Leaderboard() {
 
 	return (
 		<div className="relative h-dvh overflow-hidden">
+			<UiSounds />
 			<div className="grid-bg" aria-hidden="true" />
 			<div className="scanlines pointer-events-none fixed inset-0 z-40" aria-hidden="true" />
 

@@ -74,6 +74,10 @@ interference across moving objects makes them measurably harder to track.
 
 ## Credits
 
+Interface hovers and clicks use osu!'s keyboard samples, delegated from one
+document-level listener rather than wired per button — screens here mount and
+unmount constantly, and every control would otherwise have to opt in.
+
 Gameplay samples in `public/sfx/` are from
 [ppy/osu-resources](https://github.com/ppy/osu-resources), licensed
 **CC BY-NC 4.0**. Fine for a hackathon booth; if this ever becomes commercial,
