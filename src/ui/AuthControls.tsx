@@ -2,6 +2,7 @@
 
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { useStrings } from "@/i18n/strings";
+import { Icon } from "./Icon";
 
 /**
  * Sign in, or the account you are signed in as.
@@ -36,7 +37,11 @@ export function AuthControls() {
 
 	return (
 		<SignInButton mode="modal">
-			<button type="button" className="keycap-ghost px-4 py-1.5 text-xs">
+			<button
+				type="button"
+				className="keycap-ghost inline-flex items-center gap-2 px-4 py-1.5 text-xs"
+			>
+				<Icon name="user" size={0.9} />
 				{t.signIn}
 			</button>
 		</SignInButton>

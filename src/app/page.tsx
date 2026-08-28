@@ -15,6 +15,7 @@ import type { ScoreEntry } from "@/scores/repository";
 import { Board } from "@/ui/Board";
 import { BrandBar } from "@/ui/BrandBar";
 import { GameCanvas } from "@/ui/GameCanvas";
+import { Icon } from "@/ui/Icon";
 import { NameEntry } from "@/ui/NameEntry";
 import { ParticipantCarousel } from "@/ui/ParticipantCarousel";
 import { ShakyText } from "@/ui/ShakyText";
@@ -269,8 +270,9 @@ function StartScreen({ onStart }: { onStart: () => void }) {
 			<button
 				type="button"
 				onClick={onStart}
-				className="keycap px-16 py-6 font-semibold text-2xl"
+				className="keycap inline-flex items-center justify-center gap-3 px-16 py-6 font-semibold text-2xl"
 			>
+				<Icon name="power" size={0.9} />
 				<ShakyText>{t.start}</ShakyText>
 			</button>
 			<p className="section-label text-[color:var(--text-dim)]">{t.pressToBegin}</p>
@@ -288,13 +290,27 @@ function TitleScreen({ onPlay, onSettings }: { onPlay: () => void; onSettings: (
 			<p className="rise text-[color:var(--text-dim)] text-sm">10 RUN</p>
 
 			<div className="rise rise-1 mt-6 flex w-full max-w-xs flex-col gap-3">
-				<button type="button" onClick={onPlay} className="keycap py-4 font-semibold text-lg">
+				<button
+					type="button"
+					onClick={onPlay}
+					className="keycap inline-flex items-center justify-center gap-3 py-4 font-semibold text-lg"
+				>
+					<Icon name="play" size={0.9} />
 					<ShakyText>{t.play}</ShakyText>
 				</button>
-				<button type="button" onClick={onSettings} className="keycap-ghost py-4">
+				<button
+					type="button"
+					onClick={onSettings}
+					className="keycap-ghost inline-flex items-center justify-center gap-3 py-4"
+				>
+					<Icon name="sliders" size={0.9} />
 					<ShakyText>{t.settings}</ShakyText>
 				</button>
-				<Link href="/leaderboard" className="keycap-ghost py-4 text-center">
+				<Link
+					href="/leaderboard"
+					className="keycap-ghost inline-flex items-center justify-center gap-3 py-4"
+				>
+					<Icon name="trophy" size={0.9} />
 					<ShakyText>{t.highScores.toUpperCase()}</ShakyText>
 				</Link>
 			</div>
@@ -324,7 +340,8 @@ function SettingsScreen({ onBack }: { onBack: () => void }) {
 
 			<p className="rise rise-2 mt-6 text-[color:var(--text-dim)] text-xs">{t.levelsOnDevice}</p>
 
-			<button type="button" onClick={onBack} className="keycap-ghost mt-8 px-5 py-2.5">
+			<button type="button" onClick={onBack} className="keycap-ghost mt-8 inline-flex items-center gap-2 px-5 py-2.5">
+				<Icon name="back" size={0.85} />
 				{t.back}
 			</button>
 		</section>
@@ -374,7 +391,8 @@ function SongList({
 				</ul>
 			</div>
 
-			<button type="button" onClick={onBack} className="keycap-ghost mt-5 self-start px-5 py-2.5">
+			<button type="button" onClick={onBack} className="keycap-ghost mt-5 inline-flex items-center gap-2 self-start px-5 py-2.5">
+				<Icon name="back" size={0.85} />
 				{t.back}
 			</button>
 		</section>
@@ -471,10 +489,20 @@ function SongDetail({
 			</div>
 
 			<div className="rise rise-3 mt-5 flex flex-wrap gap-3">
-				<button type="button" onClick={onPlay} className="keycap px-8 py-3 font-semibold">
+				<button
+					type="button"
+					onClick={onPlay}
+					className="keycap inline-flex items-center gap-2 px-8 py-3 font-semibold"
+				>
+					<Icon name="play" size={0.85} />
 					{t.play}
 				</button>
-				<button type="button" onClick={onBack} className="keycap-ghost px-5 py-3">
+				<button
+					type="button"
+					onClick={onBack}
+					className="keycap-ghost inline-flex items-center gap-2 px-5 py-3"
+				>
+					<Icon name="back" size={0.85} />
 					{t.back}
 				</button>
 			</div>
@@ -579,13 +607,27 @@ function Results({
 				)}
 
 				<div className="rise rise-3 mt-6 flex flex-wrap gap-3">
-					<button type="button" onClick={onAgain} className="keycap px-5 py-2.5 font-semibold">
+					<button
+						type="button"
+						onClick={onAgain}
+						className="keycap inline-flex items-center gap-2 px-5 py-2.5 font-semibold"
+					>
+						<Icon name="retry" size={0.85} />
 						{t.retry}
 					</button>
-					<button type="button" onClick={onSong} className="keycap-ghost px-5 py-2.5">
+					<button
+						type="button"
+						onClick={onSong}
+						className="keycap-ghost inline-flex items-center gap-2 px-5 py-2.5"
+					>
+						<Icon name="note" size={0.85} />
 						{t.song}
 					</button>
-					<Link href="/leaderboard" className="keycap-ghost px-5 py-2.5">
+					<Link
+						href="/leaderboard"
+						className="keycap-ghost inline-flex items-center gap-2 px-5 py-2.5"
+					>
+						<Icon name="trophy" size={0.85} />
 						{t.board}
 					</Link>
 				</div>

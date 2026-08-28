@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useStrings } from "@/i18n/strings";
 import { MAX_NAME_LENGTH, NAME_PATTERN } from "@/scores/repository";
+import { Icon } from "./Icon";
 
 interface Props {
 	onSubmit: (name: string) => void;
@@ -64,7 +65,12 @@ export function NameEntry({ onSubmit }: Props) {
 				</span>
 			</div>
 
-			<button type="submit" disabled={!valid} className="keycap mt-6 px-5 py-2.5 font-semibold">
+			<button
+				type="submit"
+				disabled={!valid}
+				className="keycap mt-6 inline-flex items-center gap-2 px-5 py-2.5 font-semibold"
+			>
+				<Icon name="save" size={0.85} />
 				{t.saveScore}
 			</button>
 		</form>

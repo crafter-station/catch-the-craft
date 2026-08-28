@@ -6,6 +6,7 @@ import { useStrings } from "@/i18n/strings";
 import { fetchTotals } from "@/scores/client";
 import type { TotalEntry } from "@/scores/repository";
 import { Board } from "@/ui/Board";
+import { Icon } from "@/ui/Icon";
 import { UiSounds } from "@/ui/UiSounds";
 
 /** How often the second-screen board refreshes itself. */
@@ -65,9 +66,10 @@ export default function Leaderboard() {
 
 				<Link
 					href="/"
-					className="section-label mt-6 text-[color:var(--text-dim)] hover:text-[color:var(--bright)]"
+					className="section-label mt-6 inline-flex items-center gap-2 text-[color:var(--text-dim)] hover:text-[color:var(--bright)]"
 				>
-					&lt; {t.backToGame}
+					<Icon name="back" size={0.9} />
+					{t.backToGame}
 				</Link>
 			</main>
 		</div>
