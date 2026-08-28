@@ -13,9 +13,14 @@ export interface AudioSettings {
 	muted: boolean;
 }
 
+/**
+ * Effects at full, music well under it. The hitsounds are the feedback telling
+ * you whether you caught something, so they have to cut through a loud room;
+ * the track only has to be recognisable behind them.
+ */
 export const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
-	music: 0.7,
-	effects: 0.8,
+	music: 0.4,
+	effects: 1,
 	muted: false,
 };
 
