@@ -1,3 +1,4 @@
+import { cachedArrayBuffer } from "./cache";
 import { menuContext } from "./menu-audio";
 import { audioSettings, musicVolume, subscribeAudioSettings } from "./settings";
 
@@ -101,9 +102,7 @@ async function load(context: AudioContext, url: string): Promise<AudioBuffer> {
 	const cached = buffers.get(url);
 	if (cached) return cached;
 
-	const response = await fetch(url);
-	if (!response.ok) throw new Error(`Failed to load menu track: ${url}`);
-	const buffer = await context.decodeAudioData(await response.arrayBuffer());
+	const buffer = await context.decodeAudioData(await cachedArrayBuffer(url));
 
 	buffers.set(url, buffer);
 	return buffer;

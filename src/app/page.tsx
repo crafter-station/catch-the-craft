@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { prefetchAudio } from "@/game/audio/cache";
 import { disposeMenuMusic, playMenuTrack, stopMenuTrack } from "@/game/audio/menu-music";
 import type { RunResult } from "@/game/engine";
 import { type BeatmapEntry, loadManifest, type Tier } from "@/game/library";
@@ -10,8 +11,13 @@ import type { ScoreEntry } from "@/scores/repository";
 import { Board } from "@/ui/Board";
 import { GameCanvas } from "@/ui/GameCanvas";
 import { NameEntry } from "@/ui/NameEntry";
+import { ParticipantGallery } from "@/ui/ParticipantGallery";
+import { ShakyText } from "@/ui/ShakyText";
 import { SoundControls } from "@/ui/SoundControls";
 import { useWipe, Wipe } from "@/ui/Wipe";
+
+/** osu!lazer's intro theme, cYsmix - triangles, plays over the menus. */
+const MENU_THEME_URL = "/music/triangles.mp3";
 
 type Phase =
 	| { name: "loading" }
@@ -56,23 +62,33 @@ export default function Home() {
 	useEffect(() => () => disposeMenuMusic(), []);
 
 	/**
-	 * Which song the menus are playing. It follows the selection the way osu!'s
-	 * song select does, and goes quiet for a run, which brings its own audio.
+	 * The menus play the lazer theme, except on a song screen, where they switch
+	 * to that beatmap from its own preview point the way osu! song select does.
+	 * A run goes quiet here, because it brings its own audio.
+	 *
+	 * Held as primitives rather than an object so the effect does not re-fire on
+	 * every render and restart the track.
 	 */
-	const menuTrack =
-		phase.name === "playing"
-			? null
-			: phase.name === "song" || phase.name === "results"
-				? phase.entry
-				: (library.find((entry) => entry.tournament) ?? library[0] ?? null);
+	const menuUrl =
+		phase.name === "playing" ? null : phase.name === "song" ? phase.entry.audio : MENU_THEME_URL;
+	const menuPreviewMs = phase.name === "song" ? phase.entry.previewMs : 0;
 
 	useEffect(() => {
-		if (!audioUnlocked || !menuTrack) {
+		if (!audioUnlocked || !menuUrl) {
 			stopMenuTrack();
 			return;
 		}
-		void playMenuTrack(menuTrack.audio, menuTrack.previewMs);
-	}, [audioUnlocked, menuTrack]);
+		void playMenuTrack(menuUrl, menuPreviewMs);
+	}, [audioUnlocked, menuUrl, menuPreviewMs]);
+
+	// Pull the beatmap tracks down while someone is still reading the menu, so
+	// starting a run does not wait on a few megabytes of venue wifi.
+	useEffect(() => {
+		if (library.length === 0) return;
+		void (async () => {
+			for (const entry of library) await prefetchAudio(entry.audio);
+		})();
+	}, [library]);
 
 	if (phase.name === "playing") {
 		return (
@@ -113,10 +129,13 @@ export default function Home() {
 				)}
 
 				{phase.name === "title" && (
-					<TitleScreen
-						onPlay={() => setPhase({ name: "songs" })}
-						onSettings={() => setPhase({ name: "settings" })}
-					/>
+					<div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_22rem]">
+						<TitleScreen
+							onPlay={() => setPhase({ name: "songs" })}
+							onSettings={() => setPhase({ name: "settings" })}
+						/>
+						<ParticipantGallery />
+					</div>
 				)}
 
 				{phase.name === "settings" && <SettingsScreen onBack={() => setPhase({ name: "title" })} />}
@@ -177,7 +196,7 @@ function Header({ compact }: { compact: boolean }) {
 			<h1
 				className={`pixel-heading mt-3 ${compact ? "text-2xl sm:text-3xl" : "text-3xl sm:text-5xl"}`}
 			>
-				Catch the Craft
+				<ShakyText>Catch the Craft</ShakyText>
 			</h1>
 			{!compact && (
 				<p className="mt-4 text-[color:var(--text-dim)] text-sm leading-relaxed">
@@ -192,7 +211,7 @@ function Header({ compact }: { compact: boolean }) {
 
 function TitleScreen({ onPlay, onSettings }: { onPlay: () => void; onSettings: () => void }) {
 	return (
-		<section className="mt-12">
+		<section>
 			<p className="rise text-[color:var(--text-dim)] text-sm">10 RUN</p>
 
 			<div className="rise rise-1 mt-6 flex w-full max-w-xs flex-col gap-3">

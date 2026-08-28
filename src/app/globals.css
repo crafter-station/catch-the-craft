@@ -336,3 +336,95 @@
     animation-delay: 0ms;
   }
 }
+
+/* ─── Shaky letters ─────────────────────────────────────────────── */
+
+/*
+ * Idle letters sit still and twitch occasionally, staggered per character so the
+ * word never moves as one block. Hovering turns the twitch into a constant
+ * jitter — the title keeps shaking for as long as you are pointing at it.
+ */
+@keyframes letter-twitch {
+  0%,
+  90%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  92% {
+    transform: translate(-1px, 1px) rotate(-2deg);
+  }
+  95% {
+    transform: translate(1px, -1px) rotate(2deg);
+  }
+  98% {
+    transform: translate(-1px, 0) rotate(-1deg);
+  }
+}
+
+@keyframes letter-jitter {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(-1.5px, 1.5px) rotate(-3deg);
+  }
+  50% {
+    transform: translate(1.5px, -1px) rotate(3deg);
+  }
+  75% {
+    transform: translate(-1px, -1.5px) rotate(-2deg);
+  }
+}
+
+/* A solid box, so the whole title is hoverable. Left inline, the wrapper's hit
+   area is only its glyph runs and the gaps between letters go dead. */
+.shaky {
+  display: inline-block;
+}
+
+.shaky > span {
+  display: inline-block;
+  animation: letter-twitch 3.2s ease-in-out infinite;
+  animation-delay: calc(var(--letter) * 70ms);
+  will-change: transform;
+}
+
+.shaky:hover > span,
+.shaky:focus-visible > span {
+  animation-name: letter-jitter;
+  animation-duration: 380ms;
+}
+
+/* ─── Participant gallery ───────────────────────────────────────── */
+
+.gallery-mask {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to bottom, transparent 0, #000 8%, #000 92%, transparent 100%);
+}
+
+.gallery-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+.gallery-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.gallery-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--line);
+  border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shaky > span {
+    animation: none;
+  }
+}

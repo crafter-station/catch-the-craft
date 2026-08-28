@@ -73,10 +73,14 @@ interference across moving objects makes them measurably harder to track.
 
 ## Credits
 
-Gameplay samples in `public/sfx/` are from
+Gameplay samples in `public/sfx/` and the menu theme in `public/music/` —
+**cYsmix - triangles**, osu!lazer's intro — are from
 [ppy/osu-resources](https://github.com/ppy/osu-resources), licensed
 **CC BY-NC 4.0**. Fine for a hackathon booth; if this ever becomes commercial,
 they have to be replaced.
+
+Participant badges are served from
+[thenextcraft.crafter.run](https://thenextcraft.crafter.run).
 
 ## Scripts
 
@@ -115,12 +119,22 @@ canvas is sizing itself and audio is still decoding. When a run ends the canvas
 holds on its final frame for a beat first, so the run resolves visibly instead
 of the screen changing under the player.
 
-The menus play music the way osu! song select does: the selected beatmap from
-that chart's own `PreviewTime`, looping back to the preview point rather than
-the top of the track, and following your selection as you move through the list.
-osu!'s actual menu theme is not part of the open-source resources, and this
-needs no extra track licensed and shipped to make the menus feel alive. It waits
-for the first click or keypress, because browsers refuse audio before one.
+The menus play osu!lazer's intro theme, cYsmix - triangles. On a song screen it
+switches to that beatmap from the chart's own `PreviewTime`, looping back to the
+preview point rather than the top of the track — the way osu! song select does.
+It waits for the first click or keypress, because browsers refuse audio before
+one.
+
+Every track, the menu theme and the hitsounds go into the Cache API
+(`ctb-audio-v1`), and the beatmaps are pulled down while someone is still
+reading the menu. A booth laptop downloads each song once no matter how many
+people play it, and a reload costs nothing.
+
+The title carries a wall of participant badges. Numbers are not contiguous, so
+the roster size is discovered server-side with a gap-tolerant probe and missing
+badges drop out of the grid. Upstream serves 1080x1350 JPEGs at ~400KB with
+`max-age=0`; `/api/participants/[id]` resizes them to 320px WebP (~9KB) and
+serves them immutable, which turns a 63MB gallery into about 1.5MB.
 
 ## Leaderboard
 

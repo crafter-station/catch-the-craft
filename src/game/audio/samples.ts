@@ -1,3 +1,5 @@
+import { cachedArrayBuffer } from "./cache";
+
 /**
  * osu!'s own gameplay samples, from ppy/osu-resources.
  *
@@ -54,9 +56,8 @@ export class SampleBank {
 		await Promise.all(
 			(Object.keys(SOURCES) as SampleName[]).map(async (name) => {
 				try {
-					const response = await fetch(SOURCES[name]);
-					if (!response.ok) return;
-					bank.buffers.set(name, await context.decodeAudioData(await response.arrayBuffer()));
+					const bytes = await cachedArrayBuffer(SOURCES[name]);
+					bank.buffers.set(name, await context.decodeAudioData(bytes));
 				} catch {
 					// Leave it unset; play() becomes a no-op for this sample.
 				}

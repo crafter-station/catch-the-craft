@@ -1,3 +1,5 @@
+import { cachedArrayBuffer } from "./audio/cache";
+
 /**
  * The master clock for a run.
  *
@@ -38,9 +40,7 @@ export class AudioClock {
 		const ctx = context ?? new AudioContext();
 		if (ctx.state === "suspended") await ctx.resume();
 
-		const response = await fetch(url);
-		if (!response.ok) throw new Error(`Failed to load audio: ${url}`);
-		const buffer = await ctx.decodeAudioData(await response.arrayBuffer());
+		const buffer = await ctx.decodeAudioData(await cachedArrayBuffer(url));
 
 		return new AudioClock(ctx, buffer, context === undefined);
 	}

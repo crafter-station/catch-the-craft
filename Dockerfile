@@ -38,6 +38,12 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# The participant thumbnails are resized with sharp. Standalone tracing keeps
+# sharp's JS and .node binding but drops @img/sharp-libvips-*, so the runtime
+# dlopen fails without these — the same gap the-next-craft's image works around.
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/sharp ./node_modules/sharp
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@img ./node_modules/@img
+
 USER nextjs
 EXPOSE 3000
 
