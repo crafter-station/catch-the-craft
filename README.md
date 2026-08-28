@@ -74,11 +74,15 @@ interference across moving objects makes them measurably harder to track.
 
 ## Credits
 
-Gameplay samples in `public/sfx/` and the menu theme in `public/music/` —
-**cYsmix - triangles**, osu!lazer's intro — are from
+Gameplay samples in `public/sfx/` are from
 [ppy/osu-resources](https://github.com/ppy/osu-resources), licensed
 **CC BY-NC 4.0**. Fine for a hackathon booth; if this ever becomes commercial,
 they have to be replaced.
+
+The opening themes in `public/music/` are the event's own. To add or swap one,
+edit `MENU_THEMES` in `src/app/page.tsx` — the caching, the volume slider and
+the start-on-first-gesture handling all key off that array. Lyrics for the theme
+are in `docs/theme-lyrics.md`.
 
 The announcer lines in `public/voice/` were generated with OpenAI's
 `gpt-4o-mini-tts`. To regenerate or add one, see `SPONSORS` in
@@ -125,9 +129,11 @@ canvas is sizing itself and audio is still decoding. When a run ends the canvas
 holds on its final frame for a beat first, so the run resolves visibly instead
 of the screen changing under the player.
 
-The menus play osu!lazer's intro theme, cYsmix - triangles. On a song screen it
-switches to that beatmap from the chart's own `PreviewTime`, looping back to the
-preview point rather than the top of the track — the way osu! song select does.
+The menus play one of the event's own opening themes, chosen at random per
+visit so the booth is not repeating itself across twelve hours. On a song screen
+it switches to that beatmap from the chart's own `PreviewTime`, looping back to
+the preview point rather than the top of the track — the way osu! song select
+does.
 The context is built and the track scheduled on load, before any interaction.
 Browsers start it suspended when autoplay is blocked, and it resumes itself on
 the first gesture — a keypress, a touch, reaching for PLAY — with the audio

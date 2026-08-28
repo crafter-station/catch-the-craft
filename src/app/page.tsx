@@ -19,8 +19,11 @@ import { SponsorStrip } from "@/ui/SponsorStrip";
 import { SoundControls } from "@/ui/SoundControls";
 import { useWipe, Wipe } from "@/ui/Wipe";
 
-/** osu!lazer's intro theme, cYsmix - triangles, plays over the menus. */
-const MENU_THEME_URL = "/music/triangles.mp3";
+/**
+ * The opening themes. One is chosen at random per visit, so the booth is not
+ * playing the same track to everyone who walks up across twelve hours.
+ */
+const MENU_THEMES = ["/music/triangles2.mp3", "/music/triangles2.2.mp3"];
 
 type Phase =
 	| { name: "loading" }
@@ -36,6 +39,7 @@ type Phase =
 export default function Home() {
 	const [library, setLibrary] = useState<BeatmapEntry[]>([]);
 	const [phase, setPhase] = useState<Phase>({ name: "loading" });
+	const [themeUrl, setThemeUrl] = useState<string | null>(null);
 	const { wipeLabel, wipeTo } = useWipe();
 
 	useEffect(() => {
@@ -50,6 +54,12 @@ export default function Home() {
 			.catch((error: Error) => setPhase({ name: "error", message: error.message }));
 	}, []);
 
+	// Rolled after mount: choosing during render would differ between the server
+	// pass and the client one and trip hydration.
+	useEffect(() => {
+		setThemeUrl(MENU_THEMES[Math.floor(Math.random() * MENU_THEMES.length)]);
+	}, []);
+
 	useEffect(() => () => disposeMenuMusic(), []);
 
 	/**
@@ -61,7 +71,7 @@ export default function Home() {
 	 * every render and restart the track.
 	 */
 	const menuUrl =
-		phase.name === "playing" ? null : phase.name === "song" ? phase.entry.audio : MENU_THEME_URL;
+		phase.name === "playing" ? null : phase.name === "song" ? phase.entry.audio : themeUrl;
 	const menuPreviewMs = phase.name === "song" ? phase.entry.previewMs : 0;
 
 	// Scheduled straight away rather than waiting for a gesture: the context starts
@@ -80,10 +90,12 @@ export default function Home() {
 	useEffect(() => {
 		if (library.length === 0) return;
 		void (async () => {
-			await prefetchAudio(MENU_THEME_URL);
+			// Only the theme this visit picked; the other is pulled down on the visit
+			// it comes up, rather than paying for both every time.
+			if (themeUrl) await prefetchAudio(themeUrl);
 			for (const entry of library) await prefetchAudio(entry.audio);
 		})();
-	}, [library]);
+	}, [library, themeUrl]);
 
 	/**
 	 * The track is already fetched, decoded and scheduled; this click is simply the
