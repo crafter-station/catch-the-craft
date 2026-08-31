@@ -1,3 +1,25 @@
+<!-- ⚠️ NO BORRAR ESTE AVISO / DO NOT REMOVE THIS NOTICE ⚠️ -->
+
+> ## ⚠️ Aviso / Notice
+>
+> **🇪🇸 Español** — Este repositorio **no es open source**. Si su trabajo toma
+> elementos notoriamente derivados de este proyecto, se requiere atribución
+> expresa y visible a Crafter Station. El incumplimiento podrá dar lugar a la
+> suspensión del acceso y a un señalamiento público por parte de la
+> organización. Consulte la [LICENCIA](./LICENSE) antes de copiar, forkear o
+> desplegar cualquier parte de este código.
+>
+> **🇬🇧 English** — This repository is **not open source**. If your work takes
+> elements notoriously derived from this project, express and visible
+> attribution to Crafter Station is required. Failure to comply may result in
+> revoked access and a public statement from the organization. Review the
+> [LICENSE](./LICENSE) before copying, forking or deploying any part of this
+> code.
+>
+> **Crafter Station** — [@crafter-station](https://github.com/crafter-station) · [crafterstation.com](https://crafterstation.com)
+
+---
+
 # CATCH THE CRAFT
 
 **Live: [catch.crafter.run](https://catch.crafter.run)**
@@ -218,3 +240,17 @@ bound, and naming it fails the deploy before anything is built.
 
 Never run `vps compose remove --delete-volumes` against this stack — that is the
 one command that destroys the leaderboard.
+
+## License
+
+**Proprietary — All Rights Reserved.** See [LICENSE](./LICENSE).
+
+This repo is **not** open source. Copying, forking, modifying, redistributing,
+deploying, or using it for commercial **or** non-commercial purposes is not
+allowed without prior written permission from Crafter Station
+(hello@crafterstation.com). Third-party material keeps its own license.
+
+Este repo **no** es open source. Copiar, forkear, modificar, redistribuir,
+desplegar o usarlo con fines comerciales **o** no comerciales no está permitido
+sin permiso previo y por escrito de Crafter Station
+(hello@crafterstation.com). El material de terceros conserva su propia licencia.
